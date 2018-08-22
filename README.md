@@ -2,7 +2,7 @@
 
 This is the main repository for Chenxiao's fall 2018 research project focusing on reionization.
 
-## Prof. Hirata's suggestion about relevant papers:
+## Prof. Hirata's suggestion on relevant papers:
 
 Hirata (2018):
 https://arxiv.org/pdf/1707.03358.pdf
