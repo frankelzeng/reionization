@@ -21,3 +21,8 @@ You mainly need to look at Appendix B, which contains some comments on thermal i
 ## Reviews recommended by Paulo
 Matthew McQuinn (2016):
 https://www.annualreviews.org/doi/abs/10.1146/annurev-astro-082214-122355
+
+
+## Remarks and questions
+1.Ionization front grid stucture
+2.Frequency bins
