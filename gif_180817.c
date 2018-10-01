@@ -7,6 +7,7 @@
 #define DTIMESTEP 2.5e15
 #define NTIMESTEP 12000
 
+/*Number of Frequency bins*/
 #define N_NU 128
 
 #define RYD_K 157800
