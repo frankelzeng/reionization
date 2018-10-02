@@ -3,8 +3,8 @@
 \contentsline {section}{\numberline {3}Analytic Analysis}{1}{section.3}
 \contentsline {subsection}{\numberline {3.1}Basic Principles of Plasma Physics}{2}{subsection.3.1}
 \contentsline {subsection}{\numberline {3.2}Electron $\DOTSB \Leftarrow \joinrel \Rightarrow $ Ions}{2}{subsection.3.2}
-\contentsline {subsection}{\numberline {3.3}Ions $\DOTSB \Leftarrow \joinrel \Rightarrow $ Ions}{4}{subsection.3.3}
-\contentsline {subsection}{\numberline {3.4}Electron $\DOTSB \Leftarrow \joinrel \Rightarrow $ Neutrals}{4}{subsection.3.4}
-\contentsline {subsection}{\numberline {3.5}Ions $\DOTSB \Leftarrow \joinrel \Rightarrow $ Neutrals}{4}{subsection.3.5}
-\contentsline {subsection}{\numberline {3.6}Neutrals $\DOTSB \Leftarrow \joinrel \Rightarrow $ Neutrals}{4}{subsection.3.6}
-\contentsline {section}{\numberline {4}Numerical Calculation}{4}{section.4}
+\contentsline {subsection}{\numberline {3.3}Ions $\DOTSB \Leftarrow \joinrel \Rightarrow $ Ions}{5}{subsection.3.3}
+\contentsline {subsection}{\numberline {3.4}Electron $\DOTSB \Leftarrow \joinrel \Rightarrow $ Neutrals}{5}{subsection.3.4}
+\contentsline {subsection}{\numberline {3.5}Ions $\DOTSB \Leftarrow \joinrel \Rightarrow $ Neutrals}{5}{subsection.3.5}
+\contentsline {subsection}{\numberline {3.6}Neutrals $\DOTSB \Leftarrow \joinrel \Rightarrow $ Neutrals}{5}{subsection.3.6}
+\contentsline {section}{\numberline {4}Numerical Calculation}{5}{section.4}

@@ -114,13 +114,13 @@ where $v_e = (kT_e/m )^{1/2}$ is the average thermal speed at temperature $T_e$.
 For one component of the momentum vector $\bm{p}_e$, e.g. $p_{ex}$, we can align the corresponding axis to the drift velocity $\bm{v}_d$. Therefore, the integral $I$ becomes
 \begin{equation}
 	\begin{split}
-		I &=\exp\Big[-\frac{v_d^2}{2v_e^2} \Big] \int d^3v\ \frac{v_x}{v^3} \exp\Big[-\frac{v^2}{2v_e^2} \Big] \exp\Big[\frac{1}{v_e^2}(v_x v_d ) \Big]
+		I_x &=\exp\Big[-\frac{v_d^2}{2v_e^2} \Big] \int d^3v\ \frac{v_x}{v^3} \exp\Big[-\frac{v^2}{2v_e^2} \Big] \exp\Big[\frac{1}{v_e^2}(v_x v_d ) \Big]
 	\end{split}
 \end{equation}
 Assuming the Maxwellian distribution is isotropic, we can establish the relation such that $3v_x^2 = v^2$, or $v_x = v/ \sqrt{3}$. Therefore,
 \begin{equation}
 	\begin{split}
-		I &= \exp\Big[-\frac{v_d^2}{2v_e^2} \Big] \int_0^\infty d^3v\ \frac{v}{\sqrt{3} v^3} \exp\Big[-\frac{1}{2v_e^2}v^2 \Big] \exp\Big[\frac{v_d}{\sqrt{3} v_e^2}v \Big] \\
+		I_x &= \exp\Big[-\frac{v_d^2}{2v_e^2} \Big] \int_0^\infty d^3v\ \frac{v}{\sqrt{3} v^3} \exp\Big[-\frac{1}{2v_e^2}v^2 \Big] \exp\Big[\frac{v_d}{\sqrt{3} v_e^2}v \Big] \\
 		&= \exp\Big[-\frac{v_d^2}{2v_e^2} \Big] \int_0^\infty d^3v\ \frac{1}{\sqrt{3} v^2} \exp\Big[-\frac{1}{2v_e^2}v^2 \Big] \exp\Big[\frac{v_d}{\sqrt{3} v_e^2}v \Big] \\
 		&= \exp\Big[-\frac{v_d^2}{2v_e^2} \Big] \int_0^\infty dv\ 4\pi v^2 \frac{1}{\sqrt{3} v^2} \exp\Big[-\frac{1}{2v_e^2}v^2 \Big] \exp\Big[\frac{v_d}{\sqrt{3} v_e^2}v \Big] \\
 		&= \frac{4\pi}{\sqrt{3}} \exp\Big[-\frac{v_d^2}{2v_e^2} \Big] \int_0^\infty dv\ \exp\Big[-\frac{1}{2v_e^2}v^2 \Big] \exp\Big[\frac{v_d}{\sqrt{3} v_e^2}v \Big] \\
@@ -128,6 +128,23 @@ Assuming the Maxwellian distribution is isotropic, we can establish the relation
 		&= \frac{4\pi}{\sqrt{3}} \exp\Big[-\frac{v_d^2}{2v_e^2} \Big] \exp\Big[\frac{v_d^2}{6v_e^2} \Big]\sqrt{\frac{\pi}{2}}v_e \Big(\text{Erf}(\frac{v_d}{\sqrt{6}v_e} ) + 1 \Big)
 	\end{split}
 \end{equation}
+Therefore, in $x$ direction, the momentum loss rate per unit volume is
+\begin{equation}
+	\begin{split}
+		-\frac{d p_{ex}}{d t} &= m_e v_e n_e \nu_{ei,\text{maxwell}}
+	\end{split}
+\end{equation}
+
+where $\nu_{ei,\text{maxwell}}$ is the momentum collision frequency averaged over Maxwellian velocity distribution:
+\begin{equation}
+	\begin{split}
+		\nu_{ei,\text{maxwell}} &\equiv \Big(\frac{1}{2\pi v_e^2} \Big)^{3/2} \cdot n_i\frac{q_e^2 q_i^2}{(4\pi \epsilon_0 )^2}\frac{4\pi(m_e+m_i)}{m_i m_e^2} \ln \Lambda_e \\
+		 &\ \ \ \ \cdot \frac{4\pi}{\sqrt{3}} \exp\Big[-\frac{v_d^2}{2v_e^2} \Big] \exp\Big[\frac{v_d^2}{6v_e^2} \Big]\sqrt{\frac{\pi}{2}}v_e \Big(\text{Erf}(\frac{v_d}{\sqrt{6}v_e} ) + 1 \Big) \\
+		 &= \Big(\frac{1}{2\pi v_e^2} \Big)^{3/2} \cdot n_i\frac{q_e^2 q_i^2}{(4\pi \epsilon_0 )^2}\frac{4\pi(m_e+m_i)}{m_i m_e^2} \ln \Lambda_e \\
+		 &\ \ \ \ \cdot \frac{2\pi\sqrt{\pi}}{\sqrt{3}}\exp\Big[-\frac{v_d^2}{3v_e^2} \Big] \Big(\text{Erf}(\frac{v_d}{\sqrt{6}v_e} ) + 1 \Big)	
+	\end{split}
+\end{equation}
+
 1. look at the papers I downloaded by Dosledge 2. try to directly calculate dE/dt, assuming two maxwellian distributions
 
 
