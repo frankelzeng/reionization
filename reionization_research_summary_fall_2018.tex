@@ -72,7 +72,7 @@ The strategy I adopt is illustrated as following:
 \subsection{Electron $\Longleftrightarrow$ Ions}
 In this section we aim to find the momentum and energy loss rate when electrons collide ions. To do so, we need two components: the thermal distribution of electrons and the collision rate as a function of velocity. 
 
-In the reference frame that ions are stationary, the electrons obey the velocity distributions of \cite{Fitzpatrick:2014pp}:
+In the stationary reference frame of ions, the electrons obey the velocity distributions of \cite{Fitzpatrick:2014pp}:
 \begin{equation}
 	\label{eq_f_e}
 	f_e(\bm{v}) = n_e \Big(\frac{m_e}{2\pi kT_e} \Big)^{3/2} \exp\Big[-\frac{m_e(\bm{v} - \bm{v_d})^2}{2kT_e} \Big]
@@ -104,30 +104,28 @@ where $v_e = (kT_e/m )^{1/2}$ is the average thermal speed at temperature $T_e$.
 	\begin{split}
 		I &\equiv \int d^3v\ \frac{\bm{v}}{v^3} \exp\Big[-\frac{m_e(\bm{v} - \bm{v}_d)^2}{2kT_e} \Big] \\
 		&= \int d^3v\ \frac{\bm{v}}{v^3} \exp\Big[-\frac{m_e}{2kT_e}(\bm{v} - \bm{v}_d)^2 \Big]\\
-		&= \int d^3v\ \frac{\bm{v}}{v^3} \exp\Big[-\frac{m_e}{2kT_e}(\bm{v}\cdot\bm{v} - 2\bm{v}\cdot\bm{v}_d + \bm{v}_d\cdot\bm{v}_d) \Big]
-	\end{split} 
-\end{equation}
-When $\frac{|\bm{v}_d|}{v} \ll 1$, we can make the following approximation and expand the exponential
-\begin{equation}
-	\begin{split}
-		I &\simeq \int d^3v\ \frac{\bm{v}}{v^3} \exp\Big[-\frac{m_e}{2kT_e}(\bm{v}\cdot\bm{v} - 2\bm{v}\cdot\bm{v}_d) \Big] \\
-		&= \int d^3v\ \frac{\bm{v}}{v^3} \exp\Big[-\frac{m_e}{2kT_e}(\bm{v}\cdot\bm{v}) \Big] \exp\Big[\frac{m_e}{T_e}(\bm{v}\cdot\bm{v}_d ) \Big]\\
-		&= \int d^3v\ \frac{\bm{v}}{v^3} \exp\Big[-\frac{m_e}{2m_ev_e^2}(\bm{v}\cdot\bm{v}) \Big] \exp\Big[\frac{m_e}{m_e v_e^2}(\bm{v}\cdot\bm{v}_d ) \Big] \\
-		&= \int d^3v\ \frac{\bm{v}}{v^3} \exp\Big[-\frac{1}{2v_e^2}(\bm{v}\cdot\bm{v}) \Big] \exp\Big[\frac{1}{v_e^2}(\bm{v}\cdot\bm{v}_d ) \Big] \\
-		&\simeq \int d^3v\ \frac{\bm{v}}{v^3} \exp\Big[-\frac{1}{2v_e^2}v^2 \Big] \Big[(1 + \frac{1}{v_e^2}(\bm{v}\cdot\bm{v}_d ) \Big]
+		&= \int d^3v\ \frac{\bm{v}}{v^3} \exp\Big[-\frac{m_e}{2kT_e}(\bm{v}\cdot\bm{v} - 2\bm{v}\cdot\bm{v}_d + \bm{v}_d\cdot\bm{v}_d) \Big] \\
+		&= \int d^3v\ \frac{\bm{v}}{v^3} \exp\Big[-\frac{m_e}{2kT_e}(\bm{v}\cdot\bm{v}) \Big] \exp\Big[\frac{m_e}{T_e}(\bm{v}\cdot\bm{v}_d ) \Big] \exp\Big[-\frac{m_e}{2kT_e}(\bm{v}_d\cdot\bm{v}_d) \Big] \\
+		&= \int d^3v\ \frac{\bm{v}}{v^3} \exp\Big[-\frac{m_e}{2m_ev_e^2}(\bm{v}\cdot\bm{v}) \Big] \exp\Big[\frac{m_e}{m_e v_e^2}(\bm{v}\cdot\bm{v}_d ) \Big] \exp\Big[-\frac{m_e}{2m_ev_e^2}(\bm{v}_d\cdot\bm{v}_d) \Big] \\
+		&= \int d^3v\ \frac{\bm{v}}{v^3} \exp\Big[-\frac{1}{2v_e^2}(\bm{v}\cdot\bm{v}) \Big] \exp\Big[\frac{1}{v_e^2}(\bm{v}\cdot\bm{v}_d ) \Big] \exp\Big[-\frac{1}{2v_e^2}(\bm{v}_d\cdot\bm{v}_d) \Big]\\
+		&= \exp\Big[-\frac{v_d^2}{2v_e^2} \Big] \int d^3v\ \frac{\bm{v}}{v^3} \exp\Big[-\frac{v^2}{2v_e^2} \Big] \exp\Big[\frac{1}{v_e^2}(\bm{v}\cdot\bm{v}_d ) \Big]
  	\end{split}
 \end{equation}
 For one component of the momentum vector $\bm{p}_e$, e.g. $p_{ex}$, we can align the corresponding axis to the drift velocity $\bm{v}_d$. Therefore, the integral $I$ becomes
 \begin{equation}
 	\begin{split}
-		I &= \int d^3v\ \frac{v_x}{v^3} \exp\Big[-\frac{1}{2v_e^2}v^2 \Big] \Big[(1 + \frac{1}{v_e^2}(v_x v_d ) \Big] \\
-		&= \int d^3v\ \frac{v_x}{v^3} \exp\Big[-\frac{1}{2v_e^2}v^2 \Big] + \int d^3v\ \frac{v_x}{v^3} \exp\Big[-\frac{1}{2v_e^2}v^2 \Big] \cdot \frac{1}{v_e^2}(v_x v_d )
+		I &=\exp\Big[-\frac{v_d^2}{2v_e^2} \Big] \int d^3v\ \frac{v_x}{v^3} \exp\Big[-\frac{v^2}{2v_e^2} \Big] \exp\Big[\frac{1}{v_e^2}(v_x v_d ) \Big]
 	\end{split}
 \end{equation}
 Assuming the Maxwellian distribution is isotropic, we can establish the relation such that $3v_x^2 = v^2$, or $v_x = v/ \sqrt{3}$. Therefore,
 \begin{equation}
 	\begin{split}
-		I &= \int_0^\infty d^3v\ \frac{1}{\sqrt{3} v^2} \exp\Big[-\frac{1}{2v_e^2}v^2 \Big] + \int_0^\infty d^3v\ \frac{v_x}{v^3} \exp\Big[-\frac{1}{2v_e^2}v^2 \Big] \cdot \frac{1}{v_e^2}(v_x v_d )
+		I &= \exp\Big[-\frac{v_d^2}{2v_e^2} \Big] \int_0^\infty d^3v\ \frac{v}{\sqrt{3} v^3} \exp\Big[-\frac{1}{2v_e^2}v^2 \Big] \exp\Big[\frac{v_d}{\sqrt{3} v_e^2}v \Big] \\
+		&= \exp\Big[-\frac{v_d^2}{2v_e^2} \Big] \int_0^\infty d^3v\ \frac{1}{\sqrt{3} v^2} \exp\Big[-\frac{1}{2v_e^2}v^2 \Big] \exp\Big[\frac{v_d}{\sqrt{3} v_e^2}v \Big] \\
+		&= \exp\Big[-\frac{v_d^2}{2v_e^2} \Big] \int_0^\infty dv\ 4\pi v^2 \frac{1}{\sqrt{3} v^2} \exp\Big[-\frac{1}{2v_e^2}v^2 \Big] \exp\Big[\frac{v_d}{\sqrt{3} v_e^2}v \Big] \\
+		&= \frac{4\pi}{\sqrt{3}} \exp\Big[-\frac{v_d^2}{2v_e^2} \Big] \int_0^\infty dv\ \exp\Big[-\frac{1}{2v_e^2}v^2 \Big] \exp\Big[\frac{v_d}{\sqrt{3} v_e^2}v \Big] \\
+		&= \frac{4\pi}{\sqrt{3}} \exp\Big[-\frac{v_d^2}{2v_e^2} \Big] \exp\Big[\frac{v_d^2}{6v_e^2} \Big]\sqrt{\frac{\pi}{2}}v_e \Big(\text{Erf}(\frac{v_d}{\sqrt{6}v_e} ) + \lim_{a\to \infty} \text{Erf}(\frac{3a - \sqrt{3}v_d}{3\sqrt{2}v_e} )  \Big) \\
+		&= \frac{4\pi}{\sqrt{3}} \exp\Big[-\frac{v_d^2}{2v_e^2} \Big] \exp\Big[\frac{v_d^2}{6v_e^2} \Big]\sqrt{\frac{\pi}{2}}v_e \Big(\text{Erf}(\frac{v_d}{\sqrt{6}v_e} ) + 1 \Big)
 	\end{split}
 \end{equation}
 1. look at the papers I downloaded by Dosledge 2. try to directly calculate dE/dt, assuming two maxwellian distributions
