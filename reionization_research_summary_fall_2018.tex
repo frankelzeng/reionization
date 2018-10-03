@@ -131,21 +131,33 @@ Assuming the Maxwellian distribution is isotropic, we can establish the relation
 Therefore, in $x$ direction, the momentum loss rate per unit volume is
 \begin{equation}
 	\begin{split}
-		-\frac{d p_{ex}}{d t} &= m_e v_e n_e \nu_{ei,\text{maxwell}}
+		-\frac{d p_{ex}}{d t} &= m_e v_e n_e \nu_{ei,p,\text{maxwell}}
 	\end{split}
 \end{equation}
-
 where $\nu_{ei,\text{maxwell}}$ is the momentum collision frequency averaged over Maxwellian velocity distribution:
 \begin{equation}
 	\begin{split}
-		\nu_{ei,\text{maxwell}} &\equiv \Big(\frac{1}{2\pi v_e^2} \Big)^{3/2} \cdot n_i\frac{q_e^2 q_i^2}{(4\pi \epsilon_0 )^2}\frac{4\pi(m_e+m_i)}{m_i m_e^2} \ln \Lambda_e \\
+		\nu_{ei,p,\text{maxwell}} &\equiv \Big(\frac{1}{2\pi v_e^2} \Big)^{3/2} \cdot n_i\frac{q_e^2 q_i^2}{(4\pi \epsilon_0 )^2}\frac{4\pi(m_e+m_i)}{m_i m_e^2} \ln \Lambda_e \\
 		 &\ \ \ \ \cdot \frac{4\pi}{\sqrt{3}} \exp\Big[-\frac{v_d^2}{2v_e^2} \Big] \exp\Big[\frac{v_d^2}{6v_e^2} \Big]\sqrt{\frac{\pi}{2}}v_e \Big(\text{Erf}(\frac{v_d}{\sqrt{6}v_e} ) + 1 \Big) \\
 		 &= \Big(\frac{1}{2\pi v_e^2} \Big)^{3/2} \cdot n_i\frac{q_e^2 q_i^2}{(4\pi \epsilon_0 )^2}\frac{4\pi(m_e+m_i)}{m_i m_e^2} \ln \Lambda_e \\
 		 &\ \ \ \ \cdot \frac{2\pi\sqrt{\pi}}{\sqrt{3}}\exp\Big[-\frac{v_d^2}{3v_e^2} \Big] \Big(\text{Erf}(\frac{v_d}{\sqrt{6}v_e} ) + 1 \Big)	
 	\end{split}
 \end{equation}
+According to \cite{Chen:2016it}, the energy transfer rate per unit volume is proportional to that of momentum transfer and mass species mass fraction:
+\begin{equation}
+	\nu_{ei,E,maxwell} = \frac{m_e + m_i}{2m_e} \nu_{ei,p,\text{maxwell}} \simeq \frac{m_i}{2m_e} \nu_{ei,p,\text{maxwell}}
+\end{equation}
+Therefore, the energy loss rate is
+\begin{equation}
+	\begin{split}
+		-\frac{d E_{ex}}{d t} &= \frac{1}{2} m_e v_e^2 n_e \nu_{ei,E,\text{maxwell}} \\
+		&= \frac{1}{2} m_e v_e^2 n_e \cdot \frac{m_i}{2m_e} \\
+		&\ \ \ \ \cdot \Big(\frac{1}{2\pi v_e^2} \Big)^{3/2} \cdot n_i\frac{q_e^2 q_i^2}{(4\pi \epsilon_0 )^2}\frac{4\pi(m_e+m_i)}{m_i m_e^2} \ln \Lambda_e \\
+		&\ \ \ \ \cdot \frac{2\pi\sqrt{\pi}}{\sqrt{3}}\exp\Big[-\frac{v_d^2}{3v_e^2} \Big] \Big(\text{Erf}(\frac{v_d}{\sqrt{6}v_e} ) + 1 \Big)
+	\end{split}
+\end{equation}
 
-1. look at the papers I downloaded by Dosledge 2. try to directly calculate dE/dt, assuming two maxwellian distributions
+(Refer to Dosledge 2. try to directly calculate dE/dt, assuming two maxwellian distributions)
 
 
 \subsection{Ions $\Longleftrightarrow$ Ions}
