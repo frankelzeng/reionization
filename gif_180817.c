@@ -2,9 +2,13 @@
 #include <math.h>
 #include <stdio.h>
 
+/*Delta N_HI*/
 #define DNHI 2.5e16
+/*N_grid*/
 #define NGRID 2000
+/*Delta t^prime*/
 #define DTIMESTEP 2.5e15
+/*N t^prime ???*/
 #define NTIMESTEP 12000
 
 /*Number of Frequency bins*/
