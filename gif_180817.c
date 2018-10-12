@@ -13,9 +13,10 @@
 
 /*Number of Frequency bins*/
 #define N_NU 128
-
+/*Rydberg temperature*/
 #define RYD_K 157800
 #define ION_HE 1.809
+/*f_He*/
 #define ABUND_HE 0.079
 
 /* Sets blackbody incident spectrum at given T */
