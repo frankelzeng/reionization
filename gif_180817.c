@@ -138,6 +138,7 @@ int main(int argc, char **argv) {
   double dy1H[NGRID], dy1He[NGRID], dEH[NGRID];
   double T, U;
 
+  /*The function sscanf returns an integer which is equal to the number of parameters that were successfully converted*/
   sscanf(argv[1], "%lf", &T);
   set_bb(fracflux,T);
   set_sigma(nu,sigH,sigHe);
