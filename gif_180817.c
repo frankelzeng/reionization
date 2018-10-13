@@ -101,6 +101,9 @@ void get_ion_rate(double *y1H, double *y1He, double *fracflux, double *dy1H, dou
 
       dy1H[j] -= wt * sigH[i] * y1H[j];
       dy1He[j] -= wt * sigHe[i] * y1He[j];
+      
+      /*New functions for dEH[j] here, rename dEH by dEe, add dEHI, dEHII, dEHeI, dEHeII
+      and Te, THI, THII, THeI, THeII here*/
       dEH[j] += wt * sigH[i] * y1H[j] * (nu[i]-1.);
       dEH[j] += wt * sigHe[i] * y1He[j] * (nu[i]-ION_HE) * ABUND_HE;
 
@@ -158,6 +161,7 @@ int main(int argc, char **argv) {
   for(istep=0;istep<NTIMESTEP;istep++) {
     if (istep==0)
       for(j=0;j<NGRID;j++)
+         /*New temperatures here*/
         Te[j] = EH[j]/1.5/(2.-y1H[j]+ABUND_HE*(2.-y1He[j]))*RYD_K;
     get_ion_rate(y1H,y1He,fracflux, dy1H,dy1He,dEH);
     for(j=0;j<NGRID;j++)
@@ -170,6 +174,8 @@ int main(int argc, char **argv) {
     }
   }
 
+  /*Print out the overall one-dimentional model values for each cell, add new dEHI, dEHII, dEHeI, and dEHeII, 
+  and Te, THI, THII, THeI, THeII here*/
   for(j=0; j<NGRID; j++) {
     printf("%4ld %11.5lE %8.6lf %8.6lf %8.6lf %7.1lf\n",
       j, (j+.5)*DNHI, y1H[j], y1He[j], EH[j], Te[j]); 
