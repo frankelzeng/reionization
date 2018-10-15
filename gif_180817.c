@@ -80,12 +80,15 @@ void get_ion_rate(double *y1H, double *y1He, double *fracflux, double *dy1H, dou
   /* Build internal tables */
   if (!is_initialized) {
     is_initialized = 1;
+    /*Memory allocation, sigH/sigHe/nu are all address*/
     sigH = (double*)malloc((size_t)(3*N_NU*sizeof(double)));
     sigHe = sigH + N_NU;
     nu = sigHe + N_NU;
+    /*Why set_sigma again here??*/
     set_sigma(nu,sigH,sigHe);
   }
 
+  /*Set initial condition for the change of aboundance and energy*/
   for(j=0;j<NGRID;j++) dy1H[j] = dy1He[j] = dEH[j] = 0.;
 
   /* Now get contribution from each bin */
@@ -97,12 +100,14 @@ void get_ion_rate(double *y1H, double *y1He, double *fracflux, double *dy1H, dou
       tauHe = ABUND_HE * DNHI * sigHe[i] * y1He[j];
       tautot = tauH + tauHe;
       /* weight = (mean flux in this slice) */
+      /*IMPORTANT comments by Chenxiao: approximation made here for exponential function,
+       * flux is affected by the optical depth*/
       wt = flux * (tautot>1e-5? (1.-exp(-tautot))/tautot: 1.-tautot/2.);
 
       dy1H[j] -= wt * sigH[i] * y1H[j];
       dy1He[j] -= wt * sigHe[i] * y1He[j];
       
-      /*New functions for dEH[j] here, rename dEH by dEe, add dEHI, dEHII, dEHeI, dEHeII
+      /*New functions for dEH[j] here, rename dEH by dEe?, add dEHI, dEHII, dEHeI, dEHeII
       and Te, THI, THII, THeI, THeII here*/
       dEH[j] += wt * sigH[i] * y1H[j] * (nu[i]-1.);
       dEH[j] += wt * sigHe[i] * y1He[j] * (nu[i]-ION_HE) * ABUND_HE;
@@ -157,6 +162,7 @@ int main(int argc, char **argv) {
     EH[j] = 1.e-10;
   }
 
+  /*U is the ionization front speed???*/
   sscanf(argv[2], "%lf", &U);
   for(istep=0;istep<NTIMESTEP;istep++) {
     if (istep==0)
