@@ -6,7 +6,7 @@
 #define DNHI 2.5e16
 /*N_grid*/
 #define NGRID 2000
-/*Delta t^prime*/
+/*Delta t^prime == 2.5e15 cm^-2*/
 #define DTIMESTEP 2.5e15
 /*N t^prime ???*/
 #define NTIMESTEP 12000
@@ -15,6 +15,7 @@
 #define N_NU 128
 /*Rydberg temperature*/
 #define RYD_K 157800
+/*Helium ionization energy*/
 #define ION_HE 1.809
 /*f_He*/
 #define ABUND_HE 0.079
