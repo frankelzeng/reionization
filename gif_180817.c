@@ -140,11 +140,19 @@ double get_cooling_rate(double Te, double y1H, double y1He) {
 }
 
 int main(int argc, char **argv) {
+  //Iteration index
   int i;
   long j, istep;
+  //Define flux in each bin and cross section
   double fracflux[N_NU], nu[N_NU], sigH[N_NU], sigHe[N_NU];
-  double y1H[NGRID], y1He[NGRID], EH[NGRID], Te[NGRID];
-  double dy1H[NGRID], dy1He[NGRID], dEH[NGRID];
+  //Define H, He neutral fractions
+  double y1H[NGRID], y1He[NGRID];
+  double dy1H[NGRID], dy1He[NGRID];
+  //Define energy and temperatures for five species
+  double EH[NGRID],EHI[NGRID],EHII[NGRID],EHeI[NGRID],EHeII[NGRID];
+  double dEH[NGRID],dEHI[NGRID],dEHII[NGRID],dEHeI[NGRID],dEHeII[NGRID];
+  double Te[NGRID],THI[NGRID],THII[NGRID],THeI[NGRID],THeII[NGRID];
+  //Define blackbody incident temperature and ionization front velocity
   double T, U;
 
   /*The function sscanf returns an integer which is equal to the number of parameters that were successfully converted*/
