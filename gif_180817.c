@@ -168,7 +168,7 @@ int main(int argc, char **argv) {
   /* Set up initial conditions */
   for(j=0; j<NGRID; j++) {
     y1H[j] = y1He[j] = 1.;
-    EH[j] = 1.e-10;
+    EH[j] = EHI[j] = EHII[j] = EHeI[j] = EHeII[j] = 1.e-10;
   }
 
   /*U is the ionization front speed???*/
