@@ -8,7 +8,7 @@
 #define NGRID 2000
 /*Delta t^prime == 2.5e15 cm^-2*/
 #define DTIMESTEP 2.5e15
-/*N t^prime ???*/
+/*N t^prime evolve until t'=3*10^19 cm^-2*/
 #define NTIMESTEP 12000
 
 /*Number of Frequency bins*/
