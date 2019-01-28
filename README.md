@@ -28,6 +28,6 @@ https://www.annualreviews.org/doi/abs/10.1146/annurev-astro-082214-122355
 
 2. Frequency bins
 
-3. I am using the standard flag "cc -std=c99 -Wall" for compilation
+3. I am using the standard flag "cc -std=c99 -Wall -o gif" for compilation
 
-4. Running command (e.g.): ./gif 50000 500000000
+4. Running command (e.g.): ./gif 50000 500000000 >
