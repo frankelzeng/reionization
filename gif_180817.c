@@ -112,12 +112,17 @@ void get_ion_rate(double *y1H, double *y1He, double *fracflux, double *dy1H, dou
       
       /*New functions for dEH[j] here, rename dEH by dEe?, add dEHI, dEHII, dEHeI, dEHeII
       and Te, THI, THII, THeI, THeII here*/
+      /*Energy is in the unit of Rydberg*/
       dEH[j] += wt * sigH[i] * y1H[j] * (nu[i]-1.);
       dEH[j] += wt * sigHe[i] * y1He[j] * (nu[i]-ION_HE) * ABUND_HE;
       
       // Interactions between species show up here. Replace 0 with coefficients later
       // Electron
-      dEH[j] -= 0 * (Te[j]-THI[j]);
+      if (j>0){
+      double tauHIIe = 1.394e-15 *(1.+ABUND_HE*(1-y1He[j]))/pow(Te[j-1],3/2) * (Te[j-1]-THI[j-1]);
+      //dEH[j] -= tauHIIe;
+      //dEHII[j] += tauHIIe;
+      }
       dEH[j] -= 0 * (Te[j]-THII[j]);
       dEH[j] -= 0 * (Te[j]-THeI[j]);
       dEH[j] -= 0 * (Te[j]-THeII[j]);
@@ -210,11 +215,11 @@ int main(int argc, char **argv) {
     if (istep==0) {
       for(j=0;j<NGRID;j++) {
          /*New temperatures here*/
-        Te[j] = EH[j]/1.5/(2.-y1H[j]+ABUND_HE*(2.-y1He[j]))*RYD_K;
-        THI[j] = EHI[j]/1.5/(2.-y1H[j]+ABUND_HE*(2.-y1He[j]))*RYD_K;
-        THII[j] = EHII[j]/1.5/(2.-y1H[j]+ABUND_HE*(2.-y1He[j]))*RYD_K;
-        THeI[j] = EHeI[j]/1.5/(2.-y1H[j]+ABUND_HE*(2.-y1He[j]))*RYD_K;
-        THeII[j] = EHeII[j]/1.5/(2.-y1H[j]+ABUND_HE*(2.-y1He[j]))*RYD_K;
+        Te[j] = EH[j]/1.5/(1.+ABUND_HE*(2.-y1He[j]))*RYD_K;
+        THI[j] = EH[j]/1.5/(y1H[j])*RYD_K;
+        THII[j] = EH[j]/1.5/(1.-y1H[j])*RYD_K;
+        THeI[j] = EH[j]/1.5/(ABUND_HE*y1He[j])*RYD_K;
+        THeII[j] = EH[j]/1.5/(ABUND_HE*(1.-y1He[j]))*RYD_K;
       }
      }
     get_ion_rate(y1H,y1He,fracflux, dy1H,dy1He,dEH,dEHI,dEHII,dEHeI,dEHeII,Te,THI,THII,THeI,THeII);
@@ -230,19 +235,20 @@ int main(int argc, char **argv) {
       EHeI[j] += DTIMESTEP * dEHeI[j];
       EHeII[j] += DTIMESTEP * dEHeII[j];
  
-      Te[j] = EH[j]/1.5/(2.-y1H[j]+ABUND_HE*(2.-y1He[j]))*RYD_K;
-      THI[j] = EHI[j]/1.5/(2.-y1H[j]+ABUND_HE*(2.-y1He[j]))*RYD_K;
-      THII[j] = EHII[j]/1.5/(2.-y1H[j]+ABUND_HE*(2.-y1He[j]))*RYD_K;
-      THeI[j] = EHeI[j]/1.5/(2.-y1H[j]+ABUND_HE*(2.-y1He[j]))*RYD_K;
-      THeII[j] = EHeII[j]/1.5/(2.-y1H[j]+ABUND_HE*(2.-y1He[j]))*RYD_K;
+      /*Te and THII are of interests at present (1/27/19)*/ 
+      Te[j] = EH[j]/1.5/(1.+ABUND_HE*(2.-y1He[j]))*RYD_K;
+      THI[j] = EH[j]/1.5/(y1H[j])*RYD_K;
+      THII[j] = EH[j]/1.5/(1.-y1H[j])*RYD_K;
+      THeI[j] = EH[j]/1.5/(ABUND_HE*y1He[j])*RYD_K;
+      THeII[j] = EH[j]/1.5/(ABUND_HE*(1.-y1He[j]))*RYD_K;
     }
   }
 
   /*Print out the overall one-dimentional model values for each cell, add new dEHI, dEHII, dEHeI, and dEHeII, 
   and Te, THI, THII, THeI, THeII here*/
   for(j=0; j<NGRID; j++) {
-    printf("%4ld %11.5lE %8.6lf %8.6lf %8.6lf %7.1lf\n",
-      j, (j+.5)*DNHI, y1H[j], y1He[j], EH[j], Te[j]); 
+    printf("%4ld %11.5lE %8.6lf %8.6lf %8.6lf %7.1lf %7.1lf %7.1lf %7.1lf %7.1lf\n",
+      j, (j+.5)*DNHI, y1H[j], y1He[j], EH[j], Te[j], THI[j], THII[j], THeI[j], THeII[j]); 
   }
 
   return(0);
