@@ -9,7 +9,7 @@
 /*Delta t^prime == 2.5e15 cm^-2*/
 #define DTIMESTEP 2.5e15
 /*N t^prime evolve until t'=3*10^19 cm^-2*/
-#define NTIMESTEP 12000
+#define NTIMESTEP 12000 
 
 /*Number of Frequency bins*/
 #define N_NU 128
@@ -72,7 +72,7 @@ void set_sigma(double *nu, double *sigH, double *sigHe) {
  *  are done with a "time variable" that is 1 photon/cm^2
  *  [i.e. scaled time = F * t', where F = ionizing photon flux in ph/cm^2/s]
  */
-void get_ion_rate(double *y1H, double *y1He, double *fracflux, double *dy1H, double *dy1He, double *dEH, double *dEHI, double *dEHII, double *dEHeI, double *dEHeII, double *Te, double *THI, double *THII, double *THeI, double *THeII) {
+void get_ion_rate(double *y1H, double *y1He, double *fracflux, double *dy1H, double *dy1He, double *dEH, double *dEHI, double *dEHII, double *dEHeI, double *dEHeII, double *Te, double *THI, double *THII, double *THeI, double *THeII, double *tauHIIe, int istep) {
   static int is_initialized = 0;
   static double *nu, *sigH, *sigHe;
   long i,j;
@@ -116,48 +116,29 @@ void get_ion_rate(double *y1H, double *y1He, double *fracflux, double *dy1H, dou
       dEH[j] += wt * sigHe[i] * y1He[j] * (nu[i]-ION_HE) * ABUND_HE;
       // Interactions between species show up here. Replace 0 with coefficients later
       // Electron
-      /*
-      dEH[j] -= 0 * (Te[j]-THI[j]);
-      dEH[j] -= 0 * (Te[j]-THII[j]);
-      dEH[j] -= 0 * (Te[j]-THeI[j]);
-      dEH[j] -= 0 * (Te[j]-THeII[j]);
-
-      // HI
-      dEHI[j] -= 0 * (THI[j]-Te[j]);
-      dEHI[j] -= 0 * (THI[j]-THII[j]);
-      dEHI[j] -= 0 * (THI[j]-THeI[j]);
-      dEHI[j] -= 0 * (THI[j]-THeII[j]);
-        
-      // HII
-      dEHII[j] -= 0 * (THII[j]-Te[j]);
-      dEHII[j] -= 0 * (THII[j]-THI[j]);
-      dEHII[j] -= 0 * (THII[j]-THeI[j]);
-      dEHII[j] -= 0 * (THII[j]-THeII[j]);
-
-      // HeI
-      dEHeI[j] -= 0 * (THeI[j]-Te[j]);
-      dEHeI[j] -= 0 * (THeI[j]-THI[j]);
-      dEHeI[j] -= 0 * (THeI[j]-THII[j]);
-      dEHeI[j] -= 0 * (THeI[j]-THeII[j]);
-
-      // HeII
-      dEHeII[j] -= 0 * (THeII[j]-Te[j]);
-      dEHeII[j] -= 0 * (THeII[j]-THI[j]);
-      dEHeII[j] -= 0 * (THeII[j]-THII[j]);
-      dEHeII[j] -= 0 * (THeII[j]-THeI[j]);
-
-      */
       flux *= exp(-tautot);
     }
   }
+  
   for(j=0;j<NGRID;j++){
-      if (j>0){
-          double tauHIIe = 1.39e-25;
-          //double tauHIIe = 1.394e-15 *(1.+ABUND_HE*(1-y1He[j]))/pow(Te[j],3/2) * (Te[j]-THII[j]);
-          dEH[j] -= tauHIIe;
-          //dEHII[j] += tauHIIe;
+      if (istep>-1){
+          //double tauHIIe = 1.39e-25;
+          tauHIIe[j] = 6.97e-16 *(1.-y1H[j])/pow(Te[j],3/2) * (Te[j]-THII[j]);
+          
+          if (dEH[j] - tauHIIe[j] > 0 && dEHII[j] + tauHIIe[j] > 0) {
+            dEH[j] -= tauHIIe[j];
+            dEHII[j] += tauHIIe[j];
+          } else if (dEH[j] - tauHIIe[j] < 0 && dEHII[j] + tauHIIe[j] > 0) {
+            dEHII[j] += dEH[j];
+            dEH[j] = 0;
+          } else if (dEH[j] - tauHIIe[j] > 0 && dEHII[j] + tauHIIe[j] < 0) {
+            dEH[j] -= dEHII[j];
+            dEHII[j] = 0;
+          }
+         
       }
   }
+  
 }
 
 /* Cooling rate [divided by n_H] in Ry cm^3/s at given neutral fractions
@@ -194,6 +175,8 @@ int main(int argc, char **argv) {
   double EH[NGRID],EHI[NGRID],EHII[NGRID],EHeI[NGRID],EHeII[NGRID];
   double dEH[NGRID],dEHI[NGRID],dEHII[NGRID],dEHeI[NGRID],dEHeII[NGRID];
   double Te[NGRID],THI[NGRID],THII[NGRID],THeI[NGRID],THeII[NGRID];
+  //Define energy transfering rate
+  double tauHIIe[NGRID];
   //Define blackbody incident temperature and ionization front velocity
   double T, U;
 
@@ -209,27 +192,28 @@ int main(int argc, char **argv) {
 
   /* Set up initial conditions */
   for(j=0; j<NGRID; j++) {
-    y1H[j] = y1He[j] = 1.;
+    y1H[j] = y1He[j] = 1.-1.e-10;
     EH[j] = EHI[j] =  EHeI[j] = EHeII[j] = 1.e-10;
-    EHII[j] = 1.e-10;
+    EHII[j] = 1.e-100;
   }
 
   /*U is the ionization front speed???*/
   sscanf(argv[2], "%lf", &U);
+  printf("EH[3] Te[3] dEH[3] EH[3] Te[3] dEH[3]\n");
   for(istep=0;istep<NTIMESTEP;istep++) {
     if (istep==0) {
       for(j=0;j<NGRID;j++) {
          /*New temperatures here*/
         Te[j] = EH[j]/1.5/(2.-y1H[j]+ABUND_HE*(2.-y1He[j]))*RYD_K;
-        THI[j] = EHI[j]/1.5/(2.-y1H[j]+ABUND_HE*(2.-y1He[j]))*RYD_K;
-        THII[j] = EHII[j]/1.5/(2.-y1H[j])*RYD_K;
-        THeI[j] = EHeI[j]/1.5/(2.-y1H[j]+ABUND_HE*(2.-y1He[j]))*RYD_K;
-        THeII[j] = EHeII[j]/1.5/(2.-y1H[j]+ABUND_HE*(2.-y1He[j]))*RYD_K;
+        //THI[j] = EHI[j]/1.5/(2.-y1H[j]+ABUND_HE*(2.-y1He[j]))*RYD_K;
+        THII[j] = EHII[j]/1.5/(1.-y1H[j])*RYD_K;
+        //THeI[j] = EHeI[j]/1.5/(2.-y1H[j]+ABUND_HE*(2.-y1He[j]))*RYD_K;
+        //THeII[j] = EHeII[j]/1.5/(2.-y1H[j]+ABUND_HE*(2.-y1He[j]))*RYD_K;
       }
      }
-    get_ion_rate(y1H,y1He,fracflux, dy1H,dy1He,dEH,dEHI,dEHII,dEHeI,dEHeII,Te,THI,THII,THeI,THeII);
-    //for(j=0;j<NGRID;j++)
-      //dEH[j] -= get_cooling_rate(Te[j], y1H[j], y1He[j])/(1.+ABUND_HE)/U;
+    get_ion_rate(y1H,y1He,fracflux, dy1H,dy1He,dEH,dEHI,dEHII,dEHeI,dEHeII,Te,THI,THII,THeI,THeII,tauHIIe,istep);
+    for(j=0;j<NGRID;j++)
+      dEH[j] -= get_cooling_rate(Te[j], y1H[j], y1He[j])/(1.+ABUND_HE)/U;
     for(j=0;j<NGRID;j++) {
       y1H[j] += DTIMESTEP * dy1H[j];
       y1He[j] += DTIMESTEP * dy1He[j];
@@ -241,18 +225,27 @@ int main(int argc, char **argv) {
       EHeII[j] += DTIMESTEP * dEHeII[j];
  
       Te[j] = EH[j]/1.5/(2.-y1H[j]+ABUND_HE*(2.-y1He[j]))*RYD_K;
-      THI[j] = EHI[j]/1.5/(2.-y1H[j]+ABUND_HE*(2.-y1He[j]))*RYD_K;
-      THII[j] = EHII[j]/1.5/(2.-y1H[j])*RYD_K;
-      THeI[j] = EHeI[j]/1.5/(2.-y1H[j]+ABUND_HE*(2.-y1He[j]))*RYD_K;
-      THeII[j] = EHeII[j]/1.5/(2.-y1H[j]+ABUND_HE*(2.-y1He[j]))*RYD_K;
+      //THI[j] = EHI[j]/1.5/(2.-y1H[j]+ABUND_HE*(2.-y1He[j]))*RYD_K;
+      THII[j] = EHII[j]/1.5/(1.-y1H[j])*RYD_K;
+      //THeI[j] = EHeI[j]/1.5/(2.-y1H[j]+ABUND_HE*(2.-y1He[j]))*RYD_K;
+      //THeII[j] = EHeII[j]/1.5/(2.-y1H[j]+ABUND_HE*(2.-y1He[j]))*RYD_K;
     }
+    //for(j=0; j<NGRID; j++)
+    //printf("%8.50lf %8.50lf %8.50lf %8.50lf %8.50lf %8.50lf\n", EH[3], Te[3], dEH[3], EH[3], Te[3], dEH[3]);
+    //printf("\n");
   }
 
   /*Print out the overall one-dimentional model values for each cell, add new dEHI, dEHII, dEHeI, and dEHeII, 
   and Te, THI, THII, THeI, THeII here*/
+  //n: run the code on cluster, plot dEH[3] and dEH[1245]
+  for(i=0; i<5; i++)
+    printf("\n");
+  printf("One-dimensional model\n");
+  printf("Timestep=%7d\n", NTIMESTEP);
+  printf("j, (j+.5)*DNHI, y1H[j], y1He[j], EH[j], Te[j], EHII[j], THII[j], dEH[j], tauHIIe[j]\n");
   for(j=0; j<NGRID; j++) {
-    printf("%4ld %11.5lE %8.6lf %8.6lf %8.6lf %7.1lf %8.6lf %7.1lf %8.100lf\n",
-      j, (j+.5)*DNHI, y1H[j], y1He[j], EH[j], Te[j], EHII[j], THII[j], dEH[j]); 
+    printf("%4ld %11.5lE %8.15lf %8.6lf %8.6lf %7.15lf %8.6lf %7.15lf %8.100lf %8.100lf\n",
+      j, (j+.5)*DNHI, y1H[j], y1He[j], EH[j], Te[j], EHII[j], THII[j], dEH[j], tauHIIe[j]); 
   }
 
   return(0);
