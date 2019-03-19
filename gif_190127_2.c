@@ -120,6 +120,7 @@ void get_ion_rate(double *y1H, double *y1He, double *fracflux, double *dy1H, dou
     }
   }
   
+ /* 
   for(j=0;j<NGRID;j++){
       if (istep>-1){
           //double tauHIIe = 1.39e-25;
@@ -138,6 +139,7 @@ void get_ion_rate(double *y1H, double *y1He, double *fracflux, double *dy1H, dou
          
       }
   }
+  */
   
 }
 
@@ -177,6 +179,8 @@ int main(int argc, char **argv) {
   double Te[NGRID],THI[NGRID],THII[NGRID],THeI[NGRID],THeII[NGRID];
   //Define energy transfering rate
   double tauHIIe[NGRID];
+  //Define energy transfering matrix
+  double M[2][2];
   //Define blackbody incident temperature and ionization front velocity
   double T, U;
 
@@ -197,9 +201,11 @@ int main(int argc, char **argv) {
     EHII[j] = 1.e-100;
   }
 
+
   /*U is the ionization front speed???*/
   sscanf(argv[2], "%lf", &U);
   printf("EH[3] Te[3] dEH[3] EH[3] Te[3] dEH[3]\n");
+  printf("M00, M01, M10, M11\n");
   for(istep=0;istep<NTIMESTEP;istep++) {
     if (istep==0) {
       for(j=0;j<NGRID;j++) {
@@ -219,16 +225,36 @@ int main(int argc, char **argv) {
       y1He[j] += DTIMESTEP * dy1He[j];
       
       EH[j] += DTIMESTEP * dEH[j];
-      EHI[j] += DTIMESTEP * dEHI[j];
+      //EHI[j] += DTIMESTEP * dEHI[j];
       EHII[j] += DTIMESTEP * dEHII[j];
-      EHeI[j] += DTIMESTEP * dEHeI[j];
-      EHeII[j] += DTIMESTEP * dEHeII[j];
+      //EHeI[j] += DTIMESTEP * dEHeI[j];
+      //EHeII[j] += DTIMESTEP * dEHeII[j];
  
       Te[j] = EH[j]/1.5/(2.-y1H[j]+ABUND_HE*(2.-y1He[j]))*RYD_K;
       //THI[j] = EHI[j]/1.5/(2.-y1H[j]+ABUND_HE*(2.-y1He[j]))*RYD_K;
-      THII[j] = EHII[j]/1.5/(1.-y1H[j])*RYD_K;
-      //THeI[j] = EHeI[j]/1.5/(2.-y1H[j]+ABUND_HE*(2.-y1He[j]))*RYD_K;
-      //THeII[j] = EHeII[j]/1.5/(2.-y1H[j]+ABUND_HE*(2.-y1He[j]))*RYD_K;
+      THII[j] = EHII[j]/1.5/(2.-y1H[j]+ABUND_HE*(2.-y1He[j]))*RYD_K;
+      
+      if (istep >= 0) {
+      //Set up energy transferring matrix in the column order of: EH, EHII
+      M[0][0] = (1.+7.335e-11*(1.-y1H[j])*DTIMESTEP/(pow(Te[j],3/2)+pow(THII[j],3/2)))/(1.+1.467e-10*(1.-y1H[j])*DTIMESTEP/(pow(Te[j],3/2)+pow(THII[j],3/2)));
+      M[0][1] = 0.5*(1.-y1H[j])*DTIMESTEP/(6.816e9*pow(Te[j],3/2)+6.816e9*pow(THII[j],3/2)+(1-y1H[j])*DTIMESTEP);
+      M[1][0] = M[0][1];
+      M[1][1] = M[0][0];
+     
+     if (j==800)
+        printf("%8.15lf %8.15lf\n", M[0][0], M[0][1]);
+
+     double EHj = EH[j];
+     double EHIIj = EHII[j];
+     EH[j] = M[0][0]*EHj + M[0][1]*EHIIj;
+     EHII[j] = M[1][0]*EHj + M[1][1]*EHIIj;
+
+     Te[j] = EH[j]/1.5/(2.-y1H[j]+ABUND_HE*(2.-y1He[j]))*RYD_K;
+     THII[j] = EHII[j]/1.5/(2.-y1H[j]+ABUND_HE*(2.-y1He[j]))*RYD_K;
+     
+     //THeI[j] = EHeI[j]/1.5/(2.-y1H[j]+ABUND_HE*(2.-y1He[j]))*RYD_K;
+     //THeII[j] = EHeII[j]/1.5/(2.-y1H[j]+ABUND_HE*(2.-y1He[j]))*RYD_K;
+    }
     }
     //for(j=0; j<NGRID; j++)
     //printf("%8.50lf %8.50lf %8.50lf %8.50lf %8.50lf %8.50lf\n", EH[3], Te[3], dEH[3], EH[3], Te[3], dEH[3]);
