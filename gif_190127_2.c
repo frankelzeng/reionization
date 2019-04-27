@@ -20,6 +20,9 @@
 /*f_He*/
 #define ABUND_HE 0.079
 
+//define the demension of energy transfering matrix
+#define N 2
+
 /* Sets blackbody incident spectrum at given T */
 void set_bb(double *frac, double T) {
   int i;
@@ -164,6 +167,47 @@ double get_cooling_rate(double Te, double y1H, double y1He) {
   return( (3./4.*q12 + 8./9.*q13)*y1H*(1.-y1H+ABUND_HE*(1.-y1He)) );
 }
 
+//Calculate the cofactor of mat[x][y] in temp[][]
+void coFactor(double mat[N][N], double temp[N][N], int p, int q, int n) {
+    int i=0, j=0;
+    for (int row=0; row<n; row++) {
+        for (col = 0; col<n; col++) {
+           if (row!=p && col!=q) {
+            temp[i][j++] = mat[row][col];
+            if (j==n-1) {
+                j=0;
+                i++;
+            }
+           } 
+        }
+    }
+}
+
+double determinant(double mat[N][N], int n) {
+    int D=0;
+    if (n==1)
+        return mat[0][0];
+    int temp[N][N];
+    int sign = 1;
+    for (int f=0;f<n;f++) {
+        coFactor(mat, temp, 0, f, n);
+        D += sign * mat[0][f] * determinant(temp, n-1);
+        sign = -sign;
+    }
+    return D;
+}
+
+void coFactorMat(double mat[N][N], double temp[N][N]) {
+    int i=0, j=0;
+    double[N][N] blanck;
+    for (i=0;i<N;i++) {
+        for (j=0;j<N;j++) {
+            coFactor(mat, blanck, j, i, N);
+            temp[i][j] = pow(-1, i+j) * determinant(blanck, N-1);
+        }
+    }
+}
+
 int main(int argc, char **argv) {
   //Iteration index
   int i;
@@ -181,6 +225,8 @@ int main(int argc, char **argv) {
   double tauHIIe[NGRID];
   //Define energy transfering matrix
   double M[2][2];
+  //Define the inverse of M
+  double I[2][2];
   //Define blackbody incident temperature and ionization front velocity
   double T, U;
 
@@ -210,7 +256,7 @@ int main(int argc, char **argv) {
     if (istep==0) {
       for(j=0;j<NGRID;j++) {
          /*New temperatures here*/
-        Te[j] = EH[j]/1.5/(2.-y1H[j]+ABUND_HE*(2.-y1He[j]))*RYD_K;
+        Te[j] = EH[j]/1.5/(1.+ABUND_HE*(2.-y1He[j]))*RYD_K;
         //THI[j] = EHI[j]/1.5/(2.-y1H[j]+ABUND_HE*(2.-y1He[j]))*RYD_K;
         THII[j] = EHII[j]/1.5/(1.-y1H[j])*RYD_K;
         //THeI[j] = EHeI[j]/1.5/(2.-y1H[j]+ABUND_HE*(2.-y1He[j]))*RYD_K;
@@ -230,20 +276,32 @@ int main(int argc, char **argv) {
       //EHeI[j] += DTIMESTEP * dEHeI[j];
       //EHeII[j] += DTIMESTEP * dEHeII[j];
  
-      Te[j] = EH[j]/1.5/(2.-y1H[j]+ABUND_HE*(2.-y1He[j]))*RYD_K;
+      Te[j] = EH[j]/1.5/(1.+ABUND_HE*(2.-y1He[j]))*RYD_K;
       //THI[j] = EHI[j]/1.5/(2.-y1H[j]+ABUND_HE*(2.-y1He[j]))*RYD_K;
-      THII[j] = EHII[j]/1.5/(2.-y1H[j]+ABUND_HE*(2.-y1He[j]))*RYD_K;
+      THII[j] = EHII[j]/1.5/(1.-y1H[j])*RYD_K;
       
       if (istep >= 0) {
       //Set up energy transferring matrix in the column order of: EH, EHII
-      M[0][0] = (1.+7.335e-11*(1.-y1H[j])*DTIMESTEP/(pow(Te[j],3/2)+pow(THII[j],3/2)))/(1.+1.467e-10*(1.-y1H[j])*DTIMESTEP/(pow(Te[j],3/2)+pow(THII[j],3/2)));
-      M[0][1] = 0.5*(1.-y1H[j])*DTIMESTEP/(6.816e9*pow(Te[j],3/2)+6.816e9*pow(THII[j],3/2)+(1-y1H[j])*DTIMESTEP);
+      /*
+      M[0][0] = (1.+7.335e-11*(1.-y1H[j])*(1.-y1H[j])*DTIMESTEP/(pow(Te[j],3/2)+pow(THII[j],3/2)))/(1.+1.467e-10*(1.-y1H[j])*(1.-y1H[j])*DTIMESTEP/(pow(Te[j],3/2)+pow(THII[j],3/2)));
+      M[0][1] = 0.5*(1.-y1H[j])*(1.-y1H[j])*DTIMESTEP/(6.816e9*pow(Te[j],3/2)+6.816e9*pow(THII[j],3/2)+(1-y1H[j])*(1.-y1H[j])*DTIMESTEP);
       M[1][0] = M[0][1];
       M[1][1] = M[0][0];
-     
+     */
+     M[0][0] = (1.+7.335e-11*(1.-y1H[j])*(1.-y1H[j])*DTIMESTEP/(pow(Te[j],3/2)+pow(THII[j],3/2)))
+     M[0][1] = -(7.335e-11*(1.-y1H[j])*(1.-y1H[j])*DTIMESTEP/(pow(Te[j],3/2)+pow(THII[j],3/2)))
+     M[1][0] = (1.+7.335e-11*(1.-y1H[j])*(1.-y1H[j])*DTIMESTEP/(pow(Te[j],3/2)+pow(THII[j],3/2)))
+     M[1][1] = -(7.335e-11*(1.-y1H[j])*(1.-y1H[j])*DTIMESTEP/(pow(Te[j],3/2)+pow(THII[j],3/2)))
+
+     //Calculate the inverse of M, here is the identity matrix minus the energy transfering matrix
+     double det = 0;
+     det = determinant(M, N);
+     coFactorMat(M, I);
+     I = I / abs(det);
+
      if (j==800)
         printf("%8.15lf %8.15lf\n", M[0][0], M[0][1]);
-
+/*
      double EHj = EH[j];
      double EHIIj = EHII[j];
      EH[j] = M[0][0]*EHj + M[0][1]*EHIIj;
@@ -251,7 +309,15 @@ int main(int argc, char **argv) {
 
      Te[j] = EH[j]/1.5/(2.-y1H[j]+ABUND_HE*(2.-y1He[j]))*RYD_K;
      THII[j] = EHII[j]/1.5/(2.-y1H[j]+ABUND_HE*(2.-y1He[j]))*RYD_K;
-     
+*/
+    double Tej = Te[j];
+    double THIIj = THII[j];
+    Te[j] = I[0][0]*Tej + I[0][1]*THIIj;
+    THII[j] = I[1][0]*Tej + I[1][1]*THIIj;
+
+    EH[j] = Te[j]*1.5*(1.+ABUND_HE*(2.-y1He[j]))/RYD_K;
+    EHII[j] = THII[j]*1.5*(1.-y1H[j])/RYD_K;
+
      //THeI[j] = EHeI[j]/1.5/(2.-y1H[j]+ABUND_HE*(2.-y1He[j]))*RYD_K;
      //THeII[j] = EHeII[j]/1.5/(2.-y1H[j]+ABUND_HE*(2.-y1He[j]))*RYD_K;
     }
