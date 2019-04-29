@@ -21,7 +21,7 @@
 #define ABUND_HE 0.079
 
 //define the demension of energy transfering matrix
-#define N 3
+#define N 2
 
 /* Sets blackbody incident spectrum at given T */
 void set_bb(double *frac, double T) {
@@ -75,7 +75,7 @@ void set_sigma(double *nu, double *sigH, double *sigHe) {
  *  are done with a "time variable" that is 1 photon/cm^2
  *  [i.e. scaled time = F * t', where F = ionizing photon flux in ph/cm^2/s]
  */
-void get_ion_rate(double *y1H, double *y1He, double *fracflux, double *dy1H, double *dy1He, double *dEH, double *dEHI, double *dEHII, double *dEHeI, double *dEHeII, double *Te, double *THI, double *THII, double *THeI, double *THeII, int istep) {
+void get_ion_rate(double *y1H, double *y1He, double *fracflux, double *dy1H, double *dy1He, double *dEH, double *dEHI, double *dEHII, double *dEHeI, double *dEHeII, double *Te, double *THI, double *THII, double *THeI, double *THeII, double *tauHIIe, int istep) {
   static int is_initialized = 0;
   static double *nu, *sigH, *sigHe;
   long i,j;
@@ -216,10 +216,10 @@ int main(int argc, char **argv) {
   double EH[NGRID],EHI[NGRID],EHII[NGRID],EHeI[NGRID],EHeII[NGRID];
   double dEH[NGRID],dEHI[NGRID],dEHII[NGRID],dEHeI[NGRID],dEHeII[NGRID];
   double Te[NGRID],THI[NGRID],THII[NGRID],THeI[NGRID],THeII[NGRID];
+  //Define energy transfering rate
+  double tauHIIe[NGRID];
   //Define energy transfering matrix
   double M[N][N];
-  //Define energy transferring rate
-  double nuTeTHII, nuTeHI, nuTHIIHI;
   //Define the inverse of M
   double I[N][N];
   //Define blackbody incident temperature and ionization front velocity
@@ -258,7 +258,7 @@ int main(int argc, char **argv) {
         //THeII[j] = EHeII[j]/1.5/(2.-y1H[j]+ABUND_HE*(2.-y1He[j]))*RYD_K;
       }
      }
-    get_ion_rate(y1H,y1He,fracflux, dy1H,dy1He,dEH,dEHI,dEHII,dEHeI,dEHeII,Te,THI,THII,THeI,THeII,istep);
+    get_ion_rate(y1H,y1He,fracflux, dy1H,dy1He,dEH,dEHI,dEHII,dEHeI,dEHeII,Te,THI,THII,THeI,THeII,tauHIIe,istep);
     for(j=0;j<NGRID;j++)
       dEH[j] -= get_cooling_rate(Te[j], y1H[j], y1He[j])/(1.+ABUND_HE)/U;
     for(j=0;j<NGRID;j++) {
@@ -266,7 +266,10 @@ int main(int argc, char **argv) {
       y1He[j] += DTIMESTEP * dy1He[j];
 
       EH[j] += DTIMESTEP * dEH[j];
+      //EHI[j] += DTIMESTEP * dEHI[j];
       EHII[j] += DTIMESTEP * dEHII[j];
+      //EHeI[j] += DTIMESTEP * dEHeI[j];
+      //EHeII[j] += DTIMESTEP * dEHeII[j];
 
       Te[j] = EH[j]/1.5/(1.+ABUND_HE*(2.-y1He[j]))*RYD_K;
       //THI[j] = EHI[j]/1.5/(2.-y1H[j]+ABUND_HE*(2.-y1He[j]))*RYD_K;
@@ -274,14 +277,11 @@ int main(int argc, char **argv) {
 
       if (istep >= 0) {
       //Set up energy transferring matrix in the column order of: EH, EHII
-     nuTeTHII = 7.335e-11*(1.-y1H[j])*(1.-y1H[j])/(pow(Te[j],3/2)+pow(THII[j],3/2));
-     nuTeHI = 3.60e-22*(1-y1H[j])*pow(Te[j],1/2);
-     nuTHIIHI = 5.77e-21*(1-y1H[j])*pow(Te[j],1/2);
 
-     M[0][0] = 1. + nuTeTHII*DTIMESTEP;
-     M[0][1] = - nuTeTHII*DTIMESTEP;
-     M[1][0] = - nuTeTHII*DTIMESTEP;
-     M[1][1] = 1. + nuTeTHII*DTIMESTEP;
+     M[0][0] = 1.+7.335e-11*(1.-y1H[j])*(1.-y1H[j])*DTIMESTEP/(pow(Te[j],3/2)+pow(THII[j],3/2));
+     M[0][1] = -7.335e-11*(1-y1H[j])*(1.-y1H[j])*DTIMESTEP/(pow(Te[j],3/2)+pow(THII[j],3/2));
+     M[1][0] = -7.335e-11*(1.-y1H[j])*(1-y1H[j])*DTIMESTEP/(pow(Te[j],3/2)+pow(THII[j],3/2));
+     M[1][1] = 1.+7.335e-11*(1.-y1H[j])*(1-y1H[j])*DTIMESTEP/(pow(Te[j],3/2)+pow(THII[j],3/2));
 
      //Calculate the inverse of M, here is the identity matrix minus the energy transfering matrix
      inverseMat(M, I);
@@ -322,10 +322,10 @@ int main(int argc, char **argv) {
     printf("\n");
   printf("One-dimensional model\n");
   printf("Timestep=%7d\n", NTIMESTEP);
-  printf("j, (j+.5)*DNHI, y1H[j], y1He[j], EH[j], Te[j], EHII[j], THII[j], dEH[j]\n");
+  printf("j, (j+.5)*DNHI, y1H[j], y1He[j], EH[j], Te[j], EHII[j], THII[j], dEH[j], tauHIIe[j]\n");
   for(j=0; j<NGRID; j++) {
-    printf("%4ld %11.5lE %8.15lf %8.6lf %8.6lf %7.15lf %8.6lf %7.15lf %8.100lf\n",
-      j, (j+.5)*DNHI, y1H[j], y1He[j], EH[j], Te[j], EHII[j], THII[j], dEH[j]);
+    printf("%4ld %11.5lE %8.15lf %8.6lf %8.6lf %7.15lf %8.6lf %7.15lf %8.100lf %8.100lf\n",
+      j, (j+.5)*DNHI, y1H[j], y1He[j], EH[j], Te[j], EHII[j], THII[j], dEH[j], tauHIIe[j]);
   }
 
   return(0);
