@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       158,          7]
-NotebookDataLength[     51676,       1303]
-NotebookOptionsPosition[     48750,       1242]
-NotebookOutlinePosition[     49158,       1260]
-CellTagsIndexPosition[     49115,       1257]
+NotebookDataLength[     51360,       1294]
+NotebookOptionsPosition[     48433,       1233]
+NotebookOutlinePosition[     48841,       1251]
+CellTagsIndexPosition[     48798,       1248]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -964,7 +964,10 @@ Cell[BoxData[
           RowBox[{
            SubscriptBox["\[Nu]", "HIIHI"], "xe"}], "F"]}], "}"}], ",", 
        RowBox[{"{", 
-        RowBox[{"coe", ",", 
+        RowBox[{
+         FractionBox[
+          RowBox[{
+           SubscriptBox["\[Nu]", "eHI"], "xe"}], "F"], ",", 
          FractionBox[
           RowBox[{
            SubscriptBox["\[Nu]", "HIIHI"], "xe"}], "F"], ",", 
@@ -991,9 +994,10 @@ Cell[BoxData[
  CellChangeTimes->{{3.765562058085936*^9, 3.765562197364355*^9}, {
    3.76556222771348*^9, 3.765562273508132*^9}, {3.76556234266324*^9, 
    3.765562364351014*^9}, {3.765562407266375*^9, 3.765562415107935*^9}, 
-   3.765566033743815*^9, {3.765566415251272*^9, 3.765566421891871*^9}},
+   3.765566033743815*^9, {3.765566415251272*^9, 3.765566421891871*^9}, 
+   3.765567567917427*^9},
  CellLabel->
-  "In[336]:=",ExpressionUUID->"93812899-c203-487b-8dc0-0406b86cffa7"],
+  "In[339]:=",ExpressionUUID->"93812899-c203-487b-8dc0-0406b86cffa7"],
 
 Cell[CellGroupData[{
 
@@ -1049,14 +1053,8 @@ Cell[BoxData[
         RowBox[{"5.772920933239807`*^-21", " ", 
          SqrtBox["Te"], " ", "xe"}]},
        {
-        FractionBox[
-         RowBox[{"7.335228080044654`*^-11", " ", 
-          SuperscriptBox["xe", "2"]}], 
-         RowBox[{
-          SuperscriptBox["Te", 
-           RowBox[{"3", "/", "2"}]], "+", 
-          SuperscriptBox["Ti", 
-           RowBox[{"3", "/", "2"}]]}]], 
+        RowBox[{"3.6080755832748795`*^-22", " ", 
+         SqrtBox["Te"], " ", "xe"}], 
         RowBox[{"5.772920933239807`*^-21", " ", 
          SqrtBox["Te"], " ", "xe"}], 
         RowBox[{
@@ -1095,8 +1093,7 @@ $CellContext`Te^Rational[1, 2] $CellContext`xe -
          Rational[3, 2])^(-1) $CellContext`xe^2, 
       5.772920933239807*^-21 $CellContext`Te^
        Rational[1, 2] $CellContext`xe}, {
-     7.335228080044654*^-11 ($CellContext`Te^Rational[3, 2] + $CellContext`Ti^
-         Rational[3, 2])^(-1) $CellContext`xe^2, 
+     3.6080755832748795`*^-22 $CellContext`Te^Rational[1, 2] $CellContext`xe, 
       5.772920933239807*^-21 $CellContext`Te^
        Rational[
         1, 2] $CellContext`xe, (-6.133728491567295*^-21) $CellContext`Te^
@@ -1105,10 +1102,10 @@ $CellContext`Te^Rational[1, 2] $CellContext`xe -
  CellChangeTimes->{
   3.7655621987039537`*^9, 3.765562284721056*^9, 3.7655623279299707`*^9, 
    3.765562368452602*^9, 3.765562419485982*^9, 3.765566037725272*^9, {
-   3.765566416627605*^9, 3.7655664224087687`*^9}},
+   3.765566416627605*^9, 3.7655664224087687`*^9}, 3.765567569299336*^9},
  CellLabel->
   "During evaluation of \
-In[336]:=",ExpressionUUID->"edea0ec5-ce5e-4179-b054-e1cb92bb45fe"],
+In[339]:=",ExpressionUUID->"149be3fa-3f5d-482d-b7cc-83c61be4a6f4"],
 
 Cell[BoxData[
  InterpretationBox[
@@ -1164,15 +1161,9 @@ Cell[BoxData[
          RowBox[{"-", "5.772920933239807`*^-21"}], " ", 
          SqrtBox["Te"], " ", "xe", " ", "\[CapitalDelta]t"}]},
        {
-        RowBox[{"-", 
-         FractionBox[
-          RowBox[{"7.335228080044654`*^-11", " ", 
-           SuperscriptBox["xe", "2"], " ", "\[CapitalDelta]t"}], 
-          RowBox[{
-           SuperscriptBox["Te", 
-            RowBox[{"3", "/", "2"}]], "+", 
-           SuperscriptBox["Ti", 
-            RowBox[{"3", "/", "2"}]]}]]}], 
+        RowBox[{
+         RowBox[{"-", "3.6080755832748795`*^-22"}], " ", 
+         SqrtBox["Te"], " ", "xe", " ", "\[CapitalDelta]t"}], 
         RowBox[{
          RowBox[{"-", "5.772920933239807`*^-21"}], " ", 
          SqrtBox["Te"], " ", "xe", " ", "\[CapitalDelta]t"}], 
@@ -1217,9 +1208,9 @@ Cell[BoxData[
 (-5.772920933239807*^-21) $CellContext`Te^
        Rational[
         1, 2] $CellContext`xe $CellContext`\[CapitalDelta]t}, \
-{(-7.335228080044654*^-11) ($CellContext`Te^Rational[3, 2] + $CellContext`Ti^
-         Rational[
-          3, 2])^(-1) $CellContext`xe^2 $CellContext`\[CapitalDelta]t, \
+{(-3.6080755832748795`*^-22) $CellContext`Te^
+       Rational[
+        1, 2] $CellContext`xe $CellContext`\[CapitalDelta]t, \
 (-5.772920933239807*^-21) $CellContext`Te^
        Rational[1, 2] $CellContext`xe $CellContext`\[CapitalDelta]t, 1 + 
       6.133728491567295*^-21 $CellContext`Te^
@@ -1228,10 +1219,10 @@ Cell[BoxData[
  CellChangeTimes->{
   3.7655621987039537`*^9, 3.765562284721056*^9, 3.7655623279299707`*^9, 
    3.765562368452602*^9, 3.765562419485982*^9, 3.765566037725272*^9, {
-   3.765566416627605*^9, 3.7655664224249897`*^9}},
+   3.765566416627605*^9, 3.7655664224087687`*^9}, 3.7655675693155947`*^9},
  CellLabel->
   "During evaluation of \
-In[336]:=",ExpressionUUID->"e3202d86-34c1-424f-b882-8f5a0e16331c"]
+In[339]:=",ExpressionUUID->"ab6b05b5-e519-413f-a0b1-0a2c3949058d"]
 }, Open  ]]
 }, Open  ]],
 
@@ -1298,13 +1289,13 @@ Cell[34417, 862, 1330, 38, 141, "Input",ExpressionUUID->"d7f3183a-cb10-4e74-abf7
 Cell[35750, 902, 823, 17, 41, "Print",ExpressionUUID->"d05a7949-2d27-4813-bd25-9bbd14d1394a"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[36610, 924, 2442, 71, 109, "Input",ExpressionUUID->"93812899-c203-487b-8dc0-0406b86cffa7"],
+Cell[36610, 924, 2558, 75, 109, "Input",ExpressionUUID->"93812899-c203-487b-8dc0-0406b86cffa7"],
 Cell[CellGroupData[{
-Cell[39077, 999, 4319, 111, 96, "Print",ExpressionUUID->"edea0ec5-ce5e-4179-b054-e1cb92bb45fe"],
-Cell[43399, 1112, 5168, 121, 96, "Print",ExpressionUUID->"e3202d86-34c1-424f-b882-8f5a0e16331c"]
+Cell[39193, 1003, 4102, 104, 86, "Print",ExpressionUUID->"149be3fa-3f5d-482d-b7cc-83c61be4a6f4"],
+Cell[43298, 1109, 4952, 115, 86, "Print",ExpressionUUID->"ab6b05b5-e519-413f-a0b1-0a2c3949058d"]
 }, Open  ]]
 }, Open  ]],
-Cell[48594, 1237, 152, 3, 30, "Input",ExpressionUUID->"be4788b8-9f07-42a4-b256-2f44fb543946"]
+Cell[48277, 1228, 152, 3, 30, "Input",ExpressionUUID->"be4788b8-9f07-42a4-b256-2f44fb543946"]
 }
 ]
 *)
