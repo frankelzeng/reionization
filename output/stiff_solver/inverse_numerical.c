@@ -287,8 +287,8 @@ int main(int argc, char **argv) {
 
      M[0][0] = 1.+7.335e-11*(1-y1H[j])*(1.-y1H[j])*(1.-y1H[j])*DTIMESTEP/(pow(Te[j],3/2)+pow(THII[j],3/2));
      M[0][1] = -7.335e-11*(1.-y1H[j])*(1-y1H[j])*(1.-y1H[j])*DTIMESTEP/(pow(Te[j],3/2)+pow(THII[j],3/2));
-     M[1][0] = -7.335e-11*(1.-y1H[j])*(1.-y1H[j])*(1-y1H[j])*DTIMESTEP/(pow(Te[j],3/2)+pow(THII[j],3/2));
      M[1][1] = 1.+7.335e-11*(1.-y1H[j])*(1.-y1H[j])*(1-y1H[j])*DTIMESTEP/(pow(Te[j],3/2)+pow(THII[j],3/2));
+     M[1][0] = -7.335e-11*(1.-y1H[j])*(1.-y1H[j])*(1-y1H[j])*DTIMESTEP/(pow(Te[j],3/2)+pow(THII[j],3/2));
 
      //Calculate the inverse of M, here is the identity matrix minus the energy transfering matrix
      inverseMat(M, I);

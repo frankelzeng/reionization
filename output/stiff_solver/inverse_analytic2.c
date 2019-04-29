@@ -166,7 +166,7 @@ void coFactor(double mat[N][N], double temp[N][N], int p, int q, int n) {
 /* Recursive function for finding determinant of matrix.
    n is current dimension of mat[][]. */
 double determinant(double mat[N][N], int n) {
-    double D=0;
+    int D=0;
     if (n==1)
         return mat[0][0];
     double temp[N][N];
@@ -277,26 +277,26 @@ int main(int argc, char **argv) {
 
       if (istep >= 0) {
       //Set up energy transferring matrix in the column order of: EH, EHII
-     /* 
+      
       M[0][0] = (1.+7.335e-11*(1.-y1H[j])*(1.-y1H[j])*(1.-y1H[j])*DTIMESTEP/(pow(Te[j],3/2)+pow(THII[j],3/2)))/(1.+1.467e-10*(1.-y1H[j])*(1.-y1H[j])*(1-y1H[j])*DTIMESTEP/(pow(Te[j],3/2)+pow(THII[j],3/2)));
       M[0][1] = 0.5*(1.-y1H[j])*(1.-y1H[j])*(1.-y1H[j])*DTIMESTEP/(6.816e9*pow(Te[j],3/2)+6.816e9*pow(THII[j],3/2)+(1-y1H[j])*(1.-y1H[j])*(1-y1H[j])*DTIMESTEP);
       M[1][0] = M[0][1];
       M[1][1] = M[0][0];
-     */
+     
 
-
-     M[0][0] = 1.+7.335e-11*(1-y1H[j])*(1.-y1H[j])*(1.-y1H[j])*DTIMESTEP/(pow(Te[j],3/2)+pow(THII[j],3/2));
-     M[0][1] = -7.335e-11*(1.-y1H[j])*(1-y1H[j])*(1.-y1H[j])*DTIMESTEP/(pow(Te[j],3/2)+pow(THII[j],3/2));
-     M[1][0] = -7.335e-11*(1.-y1H[j])*(1.-y1H[j])*(1-y1H[j])*DTIMESTEP/(pow(Te[j],3/2)+pow(THII[j],3/2));
-     M[1][1] = 1.+7.335e-11*(1.-y1H[j])*(1.-y1H[j])*(1-y1H[j])*DTIMESTEP/(pow(Te[j],3/2)+pow(THII[j],3/2));
-
+/*
+     M[0][0] = 1.+7.335e-11*(1.-y1H[j])*(1.-y1H[j])*DTIMESTEP/(pow(Te[j],3/2)+pow(THII[j],3/2))
+     M[0][1] = -7.335e-11*(1.-y1H[j])*(1.-y1H[j])*DTIMESTEP/(pow(Te[j],3/2)+pow(THII[j],3/2))
+     M[1][0] = 1.+7.335e-11*(1.-y1H[j])*(1.-y1H[j])*DTIMESTEP/(pow(Te[j],3/2)+pow(THII[j],3/2))
+     M[1][1] = -7.335e-11*(1.-y1H[j])*(1.-y1H[j])*DTIMESTEP/(pow(Te[j],3/2)+pow(THII[j],3/2))
+*/
      //Calculate the inverse of M, here is the identity matrix minus the energy transfering matrix
-     inverseMat(M, I);
+     //inverseMat(M, I);
 
      if (j==800)
-        printf("%8.15lf %8.15lf\n", I[0][0], I[0][1]);
+        printf("%8.15lf %8.15lf\n", M[0][0], M[0][1]);
 // Energy transferring function using analytical inverse
-/*
+
      double EHj = EH[j];
      double EHIIj = EHII[j];
      EH[j] = M[0][0]*EHj + M[0][1]*EHIIj;
@@ -304,18 +304,18 @@ int main(int argc, char **argv) {
 
      Te[j] = EH[j]/1.5/(1.+ABUND_HE*(2.-y1He[j]))*RYD_K;
      THII[j] = EHII[j]/1.5/(1.-y1H[j])*RYD_K;
-*/
+
 
 // Energy transfering function using numerical inverse
+/*
+    double Tej = Te[j];
+    double THIIj = THII[j];
+    Te[j] = I[0][0]*Tej + I[0][1]*THIIj;
+    THII[j] = I[1][0]*Tej + I[1][1]*THIIj;
 
-    double EHj = EH[j];
-    double EHIIj = EHII[j];
-    EH[j] = I[0][0]*EHj + I[0][1]*EHIIj;
-    EHII[j] = I[1][0]*EHj + I[1][1]*EHIIj;
-
-    Te[j] = EH[j]/1.5/(1.+ABUND_HE*(2.-y1He[j]))*RYD_K;
-    THII[j] = EHII[j]/1.5/(1.-y1H[j])*RYD_K;
-
+    EH[j] = Te[j]*1.5*(1.+ABUND_HE*(2.-y1He[j]))/RYD_K;
+    EHII[j] = THII[j]*1.5*(1.-y1H[j])/RYD_K;
+*/
 
      //THeI[j] = EHeI[j]/1.5/(2.-y1H[j]+ABUND_HE*(2.-y1He[j]))*RYD_K;
      //THeII[j] = EHeII[j]/1.5/(2.-y1H[j]+ABUND_HE*(2.-y1He[j]))*RYD_K;

@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <math.h>
-#define N 4
+#define N 2
 
 //Calculate the cofactor of mat[x][y] in temp[][]
 void coFactor(double mat[N][N], double temp[N][N], int p, int q, int n) {
@@ -21,7 +21,7 @@ void coFactor(double mat[N][N], double temp[N][N], int p, int q, int n) {
 /* Recursive function for finding determinant of matrix.
    n is current dimension of mat[][]. */
 double determinant(double mat[N][N], int n) {
-    int D=0;
+    double D=0;
     if (n==1)
         return mat[0][0];
     double temp[N][N];
@@ -64,25 +64,25 @@ int main()
                      {5., 6., 4.},
                      {9., 8., 7.}};
 */
-    double mat4[N][N] = {{1., 0., 2., -1.},
-                     {3., 0., 0., 5.},
-                     {2., 1., 4., -3.},
-                     {1., 0., 5., 0.}
-                    };
+    double mat2[N][N];
+    mat2[0][0] = 1.000000007451644;
+    mat2[0][1] = -0.000000007451644;
+    mat2[1][1] = 1.000000007451644;
+    mat2[1][0] = -0.000000007451644;
 /*
     printf("Determinant of the matrix is : %lf \n",
-            determinant(mat, N)); 
+            determinant(mat, N));
     display(mat, 3, 3);
     double inv[N][N];
     inverseMat(mat, inv);
     display(inv, N, N);
-*/    
+*/
+    display(mat2, N, N);
     printf("Determinant of the matrix is : %lf \n",
-            determinant(mat4, N)); 
-    display(mat4, N, N);
-    double inv4[N][N];
-    inverseMat(mat4, inv4);
-    display(inv4, N, N);
-    
+            determinant(mat2, N));
+    double inv2[N][N];
+    inverseMat(mat2, inv2);
+    display(inv2, N, N);
+
     return 0;
 }
