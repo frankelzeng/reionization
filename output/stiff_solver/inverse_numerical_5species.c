@@ -21,7 +21,7 @@
 #define ABUND_HE 0.079
 
 //define the demension of energy transfering matrix
-#define N 2
+#define N 5
 
 /* Sets blackbody incident spectrum at given T */
 void set_bb(double *frac, double T) {
@@ -75,7 +75,7 @@ void set_sigma(double *nu, double *sigH, double *sigHe) {
  *  are done with a "time variable" that is 1 photon/cm^2
  *  [i.e. scaled time = F * t', where F = ionizing photon flux in ph/cm^2/s]
  */
-void get_ion_rate(double *y1H, double *y1He, double *fracflux, double *dy1H, double *dy1He, double *dEH, double *dEHI, double *dEHII, double *dEHeI, double *dEHeII, double *Te, double *THI, double *THII, double *THeI, double *THeII, double *tauHIIe, int istep) {
+void get_ion_rate(double *y1H, double *y1He, double *fracflux, double *dy1H, double *dy1He, double *dEH, double *Te, int istep) {
   static int is_initialized = 0;
   static double *nu, *sigH, *sigHe;
   long i,j;
@@ -95,7 +95,6 @@ void get_ion_rate(double *y1H, double *y1He, double *fracflux, double *dy1H, dou
   /*Set initial condition for the change of aboundance and energy*/
   for(j=0;j<NGRID;j++) {
     dy1H[j] = dy1He[j] = dEH[j] = 0.;
-    dEHI[j] = dEHII[j] = dEHeI[j] = dEHeII[j] =0.;
   }
   /* Now get contribution from each bin */
   for(i=0;i<N_NU;i++) {
@@ -113,12 +112,8 @@ void get_ion_rate(double *y1H, double *y1He, double *fracflux, double *dy1H, dou
       dy1H[j] -= wt * sigH[i] * y1H[j];
       dy1He[j] -= wt * sigHe[i] * y1He[j];
 
-      /*New functions for dEH[j] here, rename dEH by dEe?, add dEHI, dEHII, dEHeI, dEHeII
-      and Te, THI, THII, THeI, THeII here*/
       dEH[j] += wt * sigH[i] * y1H[j] * (nu[i]-1.);
       dEH[j] += wt * sigHe[i] * y1He[j] * (nu[i]-ION_HE) * ABUND_HE;
-      // Interactions between species show up here. Replace 0 with coefficients later
-      // Electron
       flux *= exp(-tautot);
     }
   }
@@ -212,14 +207,15 @@ int main(int argc, char **argv) {
   //Define H, He neutral fractions
   double y1H[NGRID], y1He[NGRID];
   double dy1H[NGRID], dy1He[NGRID];
+  
+  double dEH[NGRID];
   //Define energy and temperatures for five species
   double EH[NGRID],EHI[NGRID],EHII[NGRID],EHeI[NGRID],EHeII[NGRID];
-  double dEH[NGRID],dEHI[NGRID],dEHII[NGRID],dEHeI[NGRID],dEHeII[NGRID];
   double Te[NGRID],THI[NGRID],THII[NGRID],THeI[NGRID],THeII[NGRID];
-  //Define energy transfering rate
-  double tauHIIe[NGRID];
   //Define energy transfering matrix
   double M[N][N];
+  //Define energy transferring rate
+  double nuTeTHII, nuTeTHI, nuTHIITHI, nuTeTHeI, nuTHIITHeI, nuTHITHeI, nuTeTHeII, nuTHIITHeII, nuTHITHeII, nuTHeITHeII;
   //Define the inverse of M
   double I[N][N];
   //Define blackbody incident temperature and ionization front velocity
@@ -238,69 +234,115 @@ int main(int argc, char **argv) {
   /* Set up initial conditions */
   for(j=0; j<NGRID; j++) {
     y1H[j] = y1He[j] = 1.-1.e-10;
-    EH[j] = EHI[j] =  EHeI[j] = EHeII[j] = 1.e-10;
+    EH[j] = EHI[j] =  EHeI[j] = 1.e-100;
     EHII[j] = 1.e-100;
+    EHeII[j] = 1.e-20;
   }
 
 
   /*U is the ionization front speed???*/
   sscanf(argv[2], "%lf", &U);
-  printf("EH[3] Te[3] dEH[3] EH[3] Te[3] dEH[3]\n");
-  printf("InverseMatrix00, InverseMatrix01, InverseMatrix10, InverseMatrix11\n");
+  printf("InverseMatrix00,   InverseMatrix01,   InverseMatrix02,   InverseMatrix03,   InverseMatrix04\n");
   for(istep=0;istep<NTIMESTEP;istep++) {
     if (istep==0) {
       for(j=0;j<NGRID;j++) {
          /*New temperatures here*/
-        Te[j] = EH[j]/1.5/(1.+ABUND_HE*(2.-y1He[j]))*RYD_K;
-        //THI[j] = EHI[j]/1.5/(2.-y1H[j]+ABUND_HE*(2.-y1He[j]))*RYD_K;
+        Te[j] = EH[j]/1.5/(1.-y1H[j]+ABUND_HE*(1.- 1*y1He[j]))*RYD_K;
+        THI[j] = EHI[j]/1.5/y1H[j]*RYD_K;
         THII[j] = EHII[j]/1.5/(1.-y1H[j])*RYD_K;
-        //THeI[j] = EHeI[j]/1.5/(2.-y1H[j]+ABUND_HE*(2.-y1He[j]))*RYD_K;
-        //THeII[j] = EHeII[j]/1.5/(2.-y1H[j]+ABUND_HE*(2.-y1He[j]))*RYD_K;
+        THeI[j] = EHeI[j]/1.5/(ABUND_HE*y1He[j])*RYD_K;
+        THeII[j] = EHeII[j]/1.5/(ABUND_HE*(1.-y1He[j]))*RYD_K;
       }
      }
-    get_ion_rate(y1H,y1He,fracflux, dy1H,dy1He,dEH,dEHI,dEHII,dEHeI,dEHeII,Te,THI,THII,THeI,THeII,tauHIIe,istep);
+    get_ion_rate(y1H,y1He,fracflux,dy1H,dy1He,dEH,Te,istep);
     for(j=0;j<NGRID;j++)
       dEH[j] -= get_cooling_rate(Te[j], y1H[j], y1He[j])/(1.+ABUND_HE)/U;
     for(j=0;j<NGRID;j++) {
       y1H[j] += DTIMESTEP * dy1H[j];
       y1He[j] += DTIMESTEP * dy1He[j];
-
+      
       EH[j] += DTIMESTEP * dEH[j];
-      //EHI[j] += DTIMESTEP * dEHI[j];
-      EHII[j] += DTIMESTEP * dEHII[j];
-      //EHeI[j] += DTIMESTEP * dEHeI[j];
-      //EHeII[j] += DTIMESTEP * dEHeII[j];
-
-      Te[j] = EH[j]/1.5/(1.+ABUND_HE*(2.-y1He[j]))*RYD_K;
-      //THI[j] = EHI[j]/1.5/(2.-y1H[j]+ABUND_HE*(2.-y1He[j]))*RYD_K;
-      THII[j] = EHII[j]/1.5/(1.-y1H[j])*RYD_K;
+      Te[j] = EH[j]/1.5/(1.-y1H[j]+ABUND_HE*(1.- 1*y1He[j]))*RYD_K;
 
       if (istep >= 0) {
       //Set up energy transferring matrix in the column order of: EH, EHII
+     nuTeTHII = 7.335e-11*(1.-y1H[j])*(1.-y1H[j])/(pow(Te[j] + THII[j],3/2));
 
-     M[0][0] = 1.+7.335e-11*(1-y1H[j])*(1.-y1H[j])*(1.-y1H[j])*DTIMESTEP/(pow(Te[j],3/2)+pow(THII[j],3/2));
-     M[0][1] = -7.335e-11*(1.-y1H[j])*(1-y1H[j])*(1.-y1H[j])*DTIMESTEP/(pow(Te[j],3/2)+pow(THII[j],3/2));
-     M[1][0] = -7.335e-11*(1.-y1H[j])*(1.-y1H[j])*(1-y1H[j])*DTIMESTEP/(pow(Te[j],3/2)+pow(THII[j],3/2));
-     M[1][1] = 1.+7.335e-11*(1.-y1H[j])*(1.-y1H[j])*(1-y1H[j])*DTIMESTEP/(pow(Te[j],3/2)+pow(THII[j],3/2));
+     nuTeTHI = 3.608e-20*(1.-y1H[j])*y1H[j]*pow(Te[j],1/2);
+     nuTHIITHI = 1.347e-20*(1.-y1H[j])*y1H[j]*pow(THII[j],1/2);
+
+     nuTeTHeI = 2.896e-21*y1H[j]*(1.-y1H[j])*pow(Te[j],1/2);
+     nuTHIITHeI = 7.375e-23*y1H[j]*(1.-y1H[j])*pow(THII[j],1/2);
+     nuTHITHeI = 2.850e-21*y1H[j]*y1H[j]*pow(THI[j],1/2);
+
+     nuTeTHeII = 1.458e-12*(1.-y1H[j])*(1.-y1H[j])/(pow(Te[j] + THeII[j],3/2));
+     nuTHIITHeII = 1.112e-7*(1.-y1H[j])*(1.-y1H[j])/(pow(6.646*THII[j] + 1.673*THeII[j],3/2));
+     nuTHITHeII = 8.420e-22*y1H[j]*(1-y1H[j])*pow(THII[j],1/2); 
+     nuTHeITHeII = 5.826e-24*y1H[j]*(1-y1H[j])*pow(THII[j],1/2);
+     //Use THII because I derive nuTHIIHeII from nuTHIIHI
+
+     M[0][0] = 1. + (nuTeTHII + nuTeTHI + nuTeTHeI + nuTeTHeII) * DTIMESTEP;
+     M[0][1] = - nuTeTHII * DTIMESTEP;
+     M[0][2] = - nuTeTHI * DTIMESTEP;
+     M[0][3] = - nuTeTHeI * DTIMESTEP;
+     M[0][4] = - nuTeTHeII * DTIMESTEP;
+
+     M[1][0] = - nuTeTHII * DTIMESTEP;
+     M[1][1] = 1. + (nuTeTHII + nuTHIITHI + nuTHIITHeI + nuTHIITHeII) * DTIMESTEP;
+     M[1][2] = - nuTHIITHI * DTIMESTEP;
+     M[1][3] = - nuTHIITHeI * DTIMESTEP;
+     M[1][4] = - nuTHIITHeII * DTIMESTEP;
+
+     M[2][0] = - nuTeTHI * DTIMESTEP;
+     M[2][1] = - nuTHIITHI * DTIMESTEP;
+     M[2][2] = 1. + (nuTeTHI + nuTHIITHI + nuTHITHeI + nuTHITHeII) * DTIMESTEP;
+     M[2][3] = - nuTHITHeI * DTIMESTEP;
+     M[2][4] = - nuTHITHeII * DTIMESTEP;
+     
+     M[3][0] = - nuTeTHeI * DTIMESTEP;
+     M[3][1] = - nuTHIITHeI * DTIMESTEP;
+     M[3][2] = - nuTHITHeI * DTIMESTEP;
+     M[3][3] = 1. + (nuTeTHeI + nuTHIITHeI + nuTHITHeI + nuTHeITHeII) * DTIMESTEP;
+     M[3][4] = - nuTHeITHeII * DTIMESTEP;
+
+     M[4][0] = - nuTeTHeII * DTIMESTEP; 
+     M[4][1] = - nuTHIITHeII * DTIMESTEP;
+     M[4][2] = - nuTHITHeII * DTIMESTEP;
+     M[4][3] = - nuTHeITHeII * DTIMESTEP;
+     M[4][4] = 1. + (nuTeTHeII + nuTHIITHeII + nuTHITHeII + nuTHeITHeII) * DTIMESTEP;
 
      //Calculate the inverse of M, here is the identity matrix minus the energy transfering matrix
      inverseMat(M, I);
 
-     if (j==800)
-        printf("%8.15lf %8.15lf\n", I[0][0], I[0][1]);
+     if (j==800){
+        printf("%8.15lf %8.15lf %8.15lf %8.15lf %8.15lf\n", I[0][0], I[0][1], I[0][2], I[0][3], I[0][4]);
+//        display(M, 5, 5);
+//        printf("\n");
+//        printf("%2.30lf, %2.30lf, %2.30lf\n", nuTeTHII, nuTeTHI, nuTeTHeI);
+//        printf("%2.30lf, %2.30lf, %2.30lf\n", nuTeTHeI, nuTHIITHeI, nuTHITHeI);
+//        printf("%2.30lf, %2.30lf, %2.30lf, %2.30lf\n", nuTeTHeII, nuTHIITHeII, nuTHITHeII, nuTHeITHeII);
+     }
 // Energy transferring function using temeprature transformation
-/*
+
      double Tej = Te[j];
      double THIIj = THII[j];
-     Te[j] = I[0][0]*Tej + I[0][1]*THIIj;
-     THII[j] = I[1][0]*Tej + I[1][1]*THIIj;
+     double THIj = THI[j];
+     double THeIj = THeI[j];
+     double THeIIj = THeII[j];
+     Te[j]   = I[0][0]*Tej + I[0][1]*THIIj + I[0][2]*THIj + I[0][3]*THeIj + I[0][4]*THeIIj;
+     THII[j] = I[1][0]*Tej + I[1][1]*THIIj + I[1][2]*THIj + I[1][2]*THeIj + I[1][4]*THeIIj;
+     THI[j]  = I[2][0]*Tej + I[2][1]*THIIj + I[2][2]*THIj + I[2][3]*THeIj + I[2][4]*THeIIj;
+     THeI[j] = I[3][0]*Tej + I[3][1]*THIIj + I[3][2]*THIj + I[3][3]*THeIj + I[3][4]*THeIIj;
+     THeII[j]= I[4][0]*Tej + I[4][1]*THIIj + I[4][2]*THIj + I[4][3]*THeIj + I[4][4]*THeIIj;
 
-     EH[j] = Te[j]*1.5*(1.+ABUND_HE*(2.-y1He[j]))/RYD_K;
+     EH[j] = Te[j]*1.5*(1.-y1H[j]+ABUND_HE*(1.- 1*y1He[j]))/RYD_K;
      EHII[j] = THII[j]*1.5*(1.-y1H[j])/RYD_K;
-*/
+     EHI[j] = THI[j]*1.5*y1H[j]/RYD_K;
+     EHeI[j] = THeI[j]*1.5*ABUND_HE*y1He[j]/RYD_K;
+     EHeII[j] = THeII[j]*1.5*ABUND_HE*(1-y1He[j])/RYD_K;
 
 // Energy transfering function using energy transformation
-
+/*
     double EHj = EH[j];
     double EHIIj = EHII[j];
     EH[j] = I[0][0]*EHj + I[0][1]*EHIIj;
@@ -308,24 +350,23 @@ int main(int argc, char **argv) {
 
     Te[j] = EH[j]/1.5/(1.+ABUND_HE*(2.-y1He[j]))*RYD_K;
     THII[j] = EHII[j]/1.5/(1.-y1H[j])*RYD_K;
-
+*/
      //THeI[j] = EHeI[j]/1.5/(2.-y1H[j]+ABUND_HE*(2.-y1He[j]))*RYD_K;
      //THeII[j] = EHeII[j]/1.5/(2.-y1H[j]+ABUND_HE*(2.-y1He[j]))*RYD_K;
     }
     }
   }
 
-  /*Print out the overall one-dimentional model values for each cell, add new dEHI, dEHII, dEHeI, and dEHeII,
-  and Te, THI, THII, THeI, THeII here*/
+  /*Print out the overall one-dimentional model values for each cell*/
   //n: run the code on cluster, plot dEH[3] and dEH[1245]
   for(i=0; i<5; i++)
     printf("\n");
   printf("One-dimensional model\n");
   printf("Timestep=%7d\n", NTIMESTEP);
-  printf("j, (j+.5)*DNHI, y1H[j], y1He[j], EH[j], Te[j], EHII[j], THII[j], dEH[j], tauHIIe[j]\n");
+  printf("j, (j+.5)*DNHI,     y1H[j],     y1He[j],     EH[j],     Te[j],     EHII[j],     THII[j],     EHI[j],     THI[j],     EHeI[j],     THeI[j],     EHeII[j],     THeII[j],     dEH[j]\n");
   for(j=0; j<NGRID; j++) {
-    printf("%4ld %11.5lE %8.15lf %8.6lf %8.6lf %7.15lf %8.6lf %7.15lf %8.100lf %8.100lf\n",
-      j, (j+.5)*DNHI, y1H[j], y1He[j], EH[j], Te[j], EHII[j], THII[j], dEH[j], tauHIIe[j]);
+    printf("%4ld %11.5lE %8.15lf %8.6lf %8.6lf %7.15lf %8.6lf %7.15lf %8.6lf %7.15lf %8.6lf %7.15lf %8.6lf %7.15lf %8.10lf\n",
+      j, (j+.5)*DNHI, y1H[j], y1He[j], EH[j], Te[j], EHII[j], THII[j], EHI[j], THI[j], EHeI[j], THeI[j], EHeII[j], THeII[j], dEH[j]);
   }
 
   return(0);
