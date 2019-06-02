@@ -31,3 +31,5 @@ https://www.annualreviews.org/doi/abs/10.1146/annurev-astro-082214-122355
 3. I am using the standard flag "cc -std=c99 -Wall -o gif" for compilation
 
 4. Running command (e.g.): ./gif 50000 500000000 >
+
+5. Use bash command "time ..." to calculate the running time of the program
