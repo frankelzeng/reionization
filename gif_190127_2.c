@@ -247,7 +247,7 @@ int main(int argc, char **argv) {
     if (istep==0) {
       for(j=0;j<NGRID;j++) {
          /*New temperatures here*/
-        Te[j] = EH[j]/1.5/(1.-y1H[j]+ABUND_HE*(2.- 1*y1He[j]))*RYD_K;
+        Te[j] = EH[j]/1.5/(1.-y1H[j]+ABUND_HE*(1.- 1*y1He[j]))*RYD_K;
         THI[j] = EHI[j]/1.5/y1H[j]*RYD_K;
         THII[j] = EHII[j]/1.5/(1.-y1H[j])*RYD_K;
         THeI[j] = EHeI[j]/1.5/(ABUND_HE*y1He[j])*RYD_K;
@@ -262,10 +262,11 @@ int main(int argc, char **argv) {
       y1He[j] += DTIMESTEP * dy1He[j];
       
       EH[j] += DTIMESTEP * dEH[j];
-      Te[j] = EH[j]/1.5/(1.-y1H[j]+ABUND_HE*(2.- 1*y1He[j]))*RYD_K;
+      Te[j] = EH[j]/1.5/(1.-y1H[j]+ABUND_HE*(1.- 1*y1He[j]))*RYD_K;
 
       if (istep >= 0) {
       //Set up energy transferring matrix in the column order of: EH, EHII
+     /* Include extra term for hydrogen per nucleus
      nuTeTHII = 7.335e-11*(1.-y1H[j])*(1.-y1H[j])/(pow(Te[j] + THII[j],3/2));
 
      nuTeTHI = 3.608e-20*(1.-y1H[j])*y1H[j]*pow(Te[j],1/2);
@@ -279,37 +280,60 @@ int main(int argc, char **argv) {
      nuTHIITHeII = 1.112e-7*(1.-y1H[j])*(1.-y1H[j])/(pow(6.646*THII[j] + 1.673*THeII[j],3/2));
      nuTHITHeII = 8.420e-22*y1H[j]*(1-y1H[j])*pow(THII[j],1/2); 
      nuTHeITHeII = 5.826e-24*y1H[j]*(1-y1H[j])*pow(THII[j],1/2);
+     */
+     nuTeTHII = 4.118e-9/(pow(1.673*Te[j] + 0.001*THII[j],3/2));
+
+     nuTeTHI = 3.608e-20*pow(Te[j],1/2);
+     nuTHIITHI = 1.347e-20*pow(THII[j],1/2);
+
+     nuTeTHeI = 4.640e-19*pow(Te[j],1/2);
+     nuTHIITHeI = 1.182e-20*pow(THII[j],1/2);
+     nuTHITHeI = 3.608e-20*pow(THI[j],1/2);
+
+     nuTeTHeII = 3.284e-8/(6.646*pow(Te[j] + 0.001*THeII[j],3/2));
+     nuTHIITHeII = 1.407e-6/(pow(6.646*THII[j] + 1.673*THeII[j],3/2));
+     nuTHITHeII = 1.066e-20*pow(THII[j],1/2); 
+     nuTHeITHeII = 1.182e-20*pow(THII[j],1/2);
+ 
      //Use THII because I derive nuTHIIHeII from nuTHIIHI
 
-     M[0][0] = 1. + (nuTeTHII + nuTeTHI + nuTeTHeI + nuTeTHeII) * DTIMESTEP;
-     M[0][1] = - nuTeTHII * DTIMESTEP;
-     M[0][2] = - nuTeTHI * DTIMESTEP;
-     M[0][3] = - nuTeTHeI * DTIMESTEP;
-     M[0][4] = - nuTeTHeII * DTIMESTEP;
+     //g factor is equivalent to f(\alpha) in the paper, to distinguish from fHe.
 
-     M[1][0] = - nuTeTHII * DTIMESTEP;
-     M[1][1] = 1. + (nuTeTHII + nuTHIITHI + nuTHIITHeI + nuTHIITHeII) * DTIMESTEP;
-     M[1][2] = - nuTHIITHI * DTIMESTEP;
-     M[1][3] = - nuTHIITHeI * DTIMESTEP;
-     M[1][4] = - nuTHIITHeII * DTIMESTEP;
+     double ge = (1.-y1H[j]+ABUND_HE*(1.- 1*y1He[j]));
+     double gHII = (1.-y1H[j]);
+     double gHI = y1H[j];
+     double gHeI = (ABUND_HE*y1He[j]);
+     double gHeII = (ABUND_HE*(1.-y1He[j]));
 
-     M[2][0] = - nuTeTHI * DTIMESTEP;
-     M[2][1] = - nuTHIITHI * DTIMESTEP;
-     M[2][2] = 1. + (nuTeTHI + nuTHIITHI + nuTHITHeI + nuTHITHeII) * DTIMESTEP;
-     M[2][3] = - nuTHITHeI * DTIMESTEP;
-     M[2][4] = - nuTHITHeII * DTIMESTEP;
+     M[0][0] = 1. + (nuTeTHII * gHII + nuTeTHI * gHI + nuTeTHeI * gHeI + nuTeTHeII * gHeII) * DTIMESTEP;
+     M[0][1] = - nuTeTHII * DTIMESTEP * gHII; 
+     M[0][2] = - nuTeTHI * DTIMESTEP * gHI;
+     M[0][3] = - nuTeTHeI * DTIMESTEP * gHeI;
+     M[0][4] = - nuTeTHeII * DTIMESTEP * gHeII;
+
+     M[1][0] = - nuTeTHII * DTIMESTEP * ge;
+     M[1][1] = 1. + (nuTeTHII * ge + nuTHIITHI * gHI + nuTHIITHeI * gHeI + nuTHIITHeII * gHeII) * DTIMESTEP;
+     M[1][2] = - nuTHIITHI * DTIMESTEP * gHI;
+     M[1][3] = - nuTHIITHeI * DTIMESTEP * gHeI;
+     M[1][4] = - nuTHIITHeII * DTIMESTEP * gHeII;
+
+     M[2][0] = - nuTeTHI * DTIMESTEP * ge;
+     M[2][1] = - nuTHIITHI * DTIMESTEP * gHII;
+     M[2][2] = 1. + (nuTeTHI * ge + nuTHIITHI * gHII + nuTHITHeI * gHeI + nuTHITHeII * gHeII) * DTIMESTEP;
+     M[2][3] = - nuTHITHeI * DTIMESTEP * gHeI;
+     M[2][4] = - nuTHITHeII * DTIMESTEP * gHeII;
      
-     M[3][0] = - nuTeTHeI * DTIMESTEP;
-     M[3][1] = - nuTHIITHeI * DTIMESTEP;
-     M[3][2] = - nuTHITHeI * DTIMESTEP;
-     M[3][3] = 1. + (nuTeTHeI + nuTHIITHeI + nuTHITHeI + nuTHeITHeII) * DTIMESTEP;
-     M[3][4] = - nuTHeITHeII * DTIMESTEP;
+     M[3][0] = - nuTeTHeI * DTIMESTEP * ge;
+     M[3][1] = - nuTHIITHeI * DTIMESTEP * gHII;
+     M[3][2] = - nuTHITHeI * DTIMESTEP * gHI;
+     M[3][3] = 1. + (nuTeTHeI * ge + nuTHIITHeI * gHII + nuTHITHeI * gHI + nuTHeITHeII * gHeII) * DTIMESTEP;
+     M[3][4] = - nuTHeITHeII * DTIMESTEP * gHeII;
 
-     M[4][0] = - nuTeTHeII * DTIMESTEP; 
-     M[4][1] = - nuTHIITHeII * DTIMESTEP;
-     M[4][2] = - nuTHITHeII * DTIMESTEP;
-     M[4][3] = - nuTHeITHeII * DTIMESTEP;
-     M[4][4] = 1. + (nuTeTHeII + nuTHIITHeII + nuTHITHeII + nuTHeITHeII) * DTIMESTEP;
+     M[4][0] = - nuTeTHeII * DTIMESTEP * ge; 
+     M[4][1] = - nuTHIITHeII * DTIMESTEP * gHII;
+     M[4][2] = - nuTHITHeII * DTIMESTEP * gHI;
+     M[4][3] = - nuTHeITHeII * DTIMESTEP * gHeI;
+     M[4][4] = 1. + (nuTeTHeII * ge + nuTHIITHeII * gHII + nuTHITHeII * gHI + nuTHeITHeII * gHeI) * DTIMESTEP;
 
      //Calculate the inverse of M, here is the identity matrix minus the energy transfering matrix
      inverseMat(M, I);
@@ -335,7 +359,7 @@ int main(int argc, char **argv) {
      THeI[j] = I[3][0]*Tej + I[3][1]*THIIj + I[3][2]*THIj + I[3][3]*THeIj + I[3][4]*THeIIj;
      THeII[j]= I[4][0]*Tej + I[4][1]*THIIj + I[4][2]*THIj + I[4][3]*THeIj + I[4][4]*THeIIj;
 
-     EH[j] = Te[j]*1.5*(1.-y1H[j]+ABUND_HE*(2.- 1*y1He[j]))/RYD_K;
+     EH[j] = Te[j]*1.5*(1.-y1H[j]+ABUND_HE*(1.- 1*y1He[j]))/RYD_K;
      EHII[j] = THII[j]*1.5*(1.-y1H[j])/RYD_K;
      EHI[j] = THI[j]*1.5*y1H[j]/RYD_K;
      EHeI[j] = THeI[j]*1.5*ABUND_HE*y1He[j]/RYD_K;
