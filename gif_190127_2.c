@@ -2,6 +2,8 @@
 #include <math.h>
 #include <stdio.h>
 
+//Declare pi
+#define M_PI 3.14159265358979323846
 /*Delta N_HI*/
 #define DNHI 2.5e16
 /*N_grid*/
@@ -338,6 +340,7 @@ int main(int argc, char **argv) {
      //Calculate the inverse of M, here is the identity matrix minus the energy transfering matrix
      inverseMat(M, I);
 
+/*
      if (j==800){
         printf("%8.15lf %8.15lf %8.15lf %8.15lf %8.15lf\n", I[0][0], I[0][1], I[0][2], I[0][3], I[0][4]);
 //        display(M, 5, 5);
@@ -346,6 +349,7 @@ int main(int argc, char **argv) {
 //        printf("%2.30lf, %2.30lf, %2.30lf\n", nuTeTHeI, nuTHIITHeI, nuTHITHeI);
 //        printf("%2.30lf, %2.30lf, %2.30lf, %2.30lf\n", nuTeTHeII, nuTHIITHeII, nuTHITHeII, nuTHeITHeII);
      }
+*/
 // Energy transferring function using temeprature transformation
 
      double Tej = Te[j];
