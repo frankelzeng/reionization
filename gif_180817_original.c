@@ -161,6 +161,8 @@ int main(int argc, char **argv) {
       y1He[j] += DTIMESTEP * dy1He[j];
       EH[j] += DTIMESTEP * dEH[j];
       Te[j] = EH[j]/1.5/(2.-y1H[j]+ABUND_HE*(2.-y1He[j]))*RYD_K;
+      if (j==700)
+        printf("Te[700]=%8.6lf\n", Te[j]);
     }
   }
 

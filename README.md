@@ -1,35 +1,15 @@
 # Fall 2018 Reionization
 
-This is the main repository for Chenxiao's fall 2018 research project focusing on reionization.
+This is the main repository for Chenxiao's fall 2018 research project focusing on post-reionization temperature.
 
-## Prof. Hirata's suggestion on relevant papers:
+The code takes the ionization front velocity and reionization source temperature as inputs, and calculate the post-reionization temperaturefor five species (e, HI, HII, HeI, HeII) in the grid model. This new calculation include the non-equilibrium interaction bewteen species and study how the post-I temperature is shifted from the equilibrium case when different reionization parameters are applied
 
-Hirata (2018):
-https://arxiv.org/pdf/1707.03358.pdf
-Read Appendix A for the description of the model of an ionization front.
+Use "cc -std=c99 -Wall -o gif gif_190127_2.c" for compiling
 
-Some related background:
+For the front velocity 5e8 cm/s and source blackbody temperature 5e4 K, we run the executable with: "./gif 50000 500000000 > output.txt". The numbers can be replaced by other desired input parameters. 
 
-Miralda-Escudé & Rees (1994):
-http://adsabs.harvard.edu/abs/1994MNRAS.266..343M
-This is the “classic” paper on how reionization heated the IGM, and it has many insights that remain relevant today (although be warned that some of the ideas are outdated).
+The output file will generate a table of post-reionization temperature for each species with 5 columns and 2000 rows (number of grids in the model).
 
-D’Aloisio et al. (2018):
-https://arxiv.org/pdf/1807.09282.pdf
-You mainly need to look at Appendix B, which contains some comments on thermal ionization timescales. They show that thermalization occurs later in the ionization front (where x_i~0.5) but is not expected to occur in the leading part of the front (small x_i, where much of the photoionization energy is injected). It is not clear without a more detailed calculation what the consequences of this will be.
+Rerun the calculation with gif_180817_original.c to figure out the post-I temperature for the equilibrium case
 
-## Reviews recommended by Paulo
-Matthew McQuinn (2016):
-https://www.annualreviews.org/doi/abs/10.1146/annurev-astro-082214-122355
-
-
-## Remarks and questions
-1. Ionization front grid stucture
-
-2. Frequency bins
-
-3. I am using the standard flag "cc -std=c99 -Wall -o gif" for compilation
-
-4. Running command (e.g.): ./gif 50000 500000000 >
-
-5. Use bash command "time ..." to calculate the running time of the program
+The energy transfer rate between species are interpolated from experiments and the detail calculations are shown in the mathematica notebook reionization_cgs.nb
