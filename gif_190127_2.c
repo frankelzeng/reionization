@@ -106,6 +106,7 @@ void get_ion_rate(double *y1H, double *y1He, double *fracflux, double *dy1H, dou
       tauH = DNHI * sigH[i] * y1H[j] / (1 - U/3.e10);
       tauHe = ABUND_HE * DNHI * sigHe[i] * y1He[j]/ (1 - U/3.e10);
       tautot = tauH + tauHe;
+//      tautot = tautot / cos(M_PI/4.);
       /* weight = (mean flux in this slice) */
       /*IMPORTANT comments by Chenxiao: approximation made here for exponential function,
        * flux is affected by the optical depth*/
@@ -275,15 +276,14 @@ int main(int argc, char **argv) {
 
 
     nuTeTHII = 0.0753764/Ub*pow(Te[j],-3./2)*1.4;
-   
-   // condition ensures nuTeTHII does not blow up.
+    
     if (nuTeTHII > 1.)
         nuTeTHII = 1.;
-    nuTeTHI = 1/Ub*360711.*(1.08779e-14 - 3.51267e-15*pow(Te[j],0.0902082))*pow(Te[j],1./2);
+    nuTeTHI = 1/Ub*393.542*(1.08779e-14 - 3.51267e-15*pow(Te[j],0.0902082))*pow(Te[j],1./2);
     nuTHITe = nuTeTHI;
     nuTHIITHI = 1/Ub*8424.81*(7.99395e-15 + 2.51304e-13*pow(THII[j],-0.634768))*pow(THII[j],1./2);
 
-    nuTeTHeI = 1/Ub*360711.*(6.87675e-16 - 2.18539e-21*pow(Te[j],0.984171))*pow(Te[j],1./2);
+    nuTeTHeI = 1/Ub*98.9781*(6.87675e-16 - 2.18539e-21*pow(Te[j],0.984171))*pow(Te[j],1./2);
     nuTHeITe = nuTeTHeI;
     nuTHIITHeI = 1.31603e-9/Ub;
     nuTHITHeI = 1/Ub*8424.81*(-3.53379e-14 + 3.89354e-14*pow(THI[j],-0.0086412))*pow(THI[j],1./2);
@@ -296,6 +296,8 @@ int main(int argc, char **argv) {
         nuTHIITHeII = 1.;
     nuTHITHeII = 2.3739e-9/Ub;
     nuTHeITHeII = 1/Ub*4225.07*(7.71629e-11-7.71569e-11*pow(THeII[j],4.18115e-6))*pow(THeII[j],1./2);
+
+     //Use THII because I derive nuTHIIHeII from nuTHIIHI
 
      //g factor is equivalent to f(\alpha) in the paper, to distinguish from fHe.
 
@@ -337,7 +339,34 @@ int main(int argc, char **argv) {
 
      //Calculate the inverse of M, here is the identity matrix minus the energy transfering matrix
      inverseMat(M, I);
-     
+
+     if (j==13){
+/*        
+        printf("step=%ld ", istep);
+        printf("M13\n");
+        display(M, 5, 5);
+        printf("I13\n");
+        display(I, 5, 5);
+        printf("nuTeTHII = %12.5e\n", nuTeTHII);
+        printf("nuTeTHI = %12.5e\n", nuTeTHI);
+        printf("nuTHIITHI = %12.5e\n", nuTHIITHI);
+        printf("nuTeTHeI = %12.5e\n", nuTeTHeI);
+        printf("nuTHIITHeI = %12.5e\n", nuTHIITHeI);
+        printf("nuTHITHeI = %12.5e\n", nuTHITHeI);
+        printf("nuTeTHeII = %12.5e\n", nuTeTHeII);
+        printf("nuTHIITHeII = %12.5e\n", nuTHIITHeII);
+        printf("nuTHITHeII = %12.5e\n", nuTHITHeII);
+        printf("nuTHeITHeII = %12.5e\n", nuTHeITHeII);
+  */     
+        printf("Te = %12.5e\n", Te[j]);
+    /*    
+        printf("THII = %12.5e\n", THII[j]);
+        printf("THI = %12.5e\n", THI[j]);
+        printf("THeI = %12.5e\n", THeI[j]);
+        printf("THeII = %12.5e\n", THeII[j]);
+        printf("\n");
+      */  
+     }
         double Tej = Te[j];
         double THIIj = THII[j];
         double THIj = THI[j];
