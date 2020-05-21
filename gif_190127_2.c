@@ -265,12 +265,23 @@ int main(int argc, char **argv) {
     for(j=0;j<NGRID;j++)
       dEH[j] -= get_cooling_rate(Te[j], y1H[j], y1He[j])/(1.+ABUND_HE)/Ub;
     for(j=0;j<NGRID;j++) {
+      // 20/05/12 b
+      EHII[j] -= DTIMESTEP * dy1H[j] / y1H[j] * EHI[j];
+      EHI[j] += DTIMESTEP * dy1H[j] / y1H[j] * EHI[j];
+      EHeII[j] -= DTIMESTEP * dy1He[j] / y1He[j] * EHeI[j];
+      EHeI[j] += DTIMESTEP * dy1He[j] / y1He[j] * EHeI[j];
+      // 20/05/12 e
+
       y1H[j] += DTIMESTEP * dy1H[j];
       y1He[j] += DTIMESTEP * dy1He[j];
 
       EH[j] += DTIMESTEP * dEH[j];
       Te[j] = EH[j]/1.5/(1.-y1H[j]+ABUND_HE*(1.- 1*y1He[j]))*RYD_K;
-
+      THI[j] = EHI[j]/1.5/y1H[j]*RYD_K;
+      THII[j] = EHII[j]/1.5/(1.-y1H[j])*RYD_K;
+      THeI[j] = EHeI[j]/1.5/(ABUND_HE*y1He[j])*RYD_K;
+      THeII[j] = EHeII[j]/1.5/(ABUND_HE*(1.-y1He[j]))*RYD_K;
+ 
       if (istep >= 0) {
       //Set up energy transferring matrix in the column order of: EH, EHII
 
@@ -339,34 +350,7 @@ int main(int argc, char **argv) {
 
      //Calculate the inverse of M, here is the identity matrix minus the energy transfering matrix
      inverseMat(M, I);
-
-     if (j==13){
-/*        
-        printf("step=%ld ", istep);
-        printf("M13\n");
-        display(M, 5, 5);
-        printf("I13\n");
-        display(I, 5, 5);
-        printf("nuTeTHII = %12.5e\n", nuTeTHII);
-        printf("nuTeTHI = %12.5e\n", nuTeTHI);
-        printf("nuTHIITHI = %12.5e\n", nuTHIITHI);
-        printf("nuTeTHeI = %12.5e\n", nuTeTHeI);
-        printf("nuTHIITHeI = %12.5e\n", nuTHIITHeI);
-        printf("nuTHITHeI = %12.5e\n", nuTHITHeI);
-        printf("nuTeTHeII = %12.5e\n", nuTeTHeII);
-        printf("nuTHIITHeII = %12.5e\n", nuTHIITHeII);
-        printf("nuTHITHeII = %12.5e\n", nuTHITHeII);
-        printf("nuTHeITHeII = %12.5e\n", nuTHeITHeII);
-  */     
-        printf("Te = %12.5e\n", Te[j]);
-    /*    
-        printf("THII = %12.5e\n", THII[j]);
-        printf("THI = %12.5e\n", THI[j]);
-        printf("THeI = %12.5e\n", THeI[j]);
-        printf("THeII = %12.5e\n", THeII[j]);
-        printf("\n");
-      */  
-     }
+     
         double Tej = Te[j];
         double THIIj = THII[j];
         double THIj = THI[j];
