@@ -13,3 +13,5 @@ The output file will generate a table of post-reionization temperature for each 
 Rerun the calculation with gif_180817_original.c to figure out the post-I temperature for the equilibrium case
 
 The energy transfer rate between species are interpolated from experiments and the detail calculations are shown in the mathematica notebook reionization_cgs.nb
+
+The project is pubulished in the Astrophysical Journal (Astrophys.J. 906 (2021) 2, 124)
